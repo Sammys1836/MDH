@@ -26,58 +26,19 @@ jobs:
           path = Path("index.html")
           text = path.read_text(encoding="utf-8")
 
-          mobile_marker = """      .action-bar {
-            padding-bottom: env(safe-area-inset-bottom, 0px);
-          }
-          """
-
-          keyboard_css = """
-          html.mobile-keyboard-open .action-bar {
-            display: none !important;
-          }
-
-          html.mobile-keyboard-open .shell {
-            margin-bottom: 24px;
-          }
-
-          """
-
-          if "html.mobile-keyboard-open .action-bar" not in text:
-              if mobile_marker not in text:
-                  raise SystemExit("Mobile action-bar CSS marker not found")
-              text = text.replace(
-                  mobile_marker,
-                  mobile_marker + "\n" + keyboard_css,
-                  1,
-              )
-
-          old_preview = """    @media (max-width: 680px) {
-            .fabric-preview-card {
-              grid-template-columns: 118px minmax(0, 1fr);
-              gap: 12px;
-              padding: 11px;
+          css_patch = r"""
+          /* V13.15 mobile keyboard + fabric preview fixes */
+          @media (max-width: 860px) {
+            html.mobile-keyboard-open .action-bar {
+              display: none !important;
             }
 
-            .fabric-preview-image-wrap,
-            .fabric-preview-image-wrap img {
-              min-height: 142px;
-            }
-
-            .fabric-preview-image-wrap img {
-              max-height: 180px;
-            }
-
-            .fabric-preview-header {
-              gap: 8px;
-            }
-
-            .fabric-preview-button {
-              padding: 7px 9px;
+            html.mobile-keyboard-open .shell {
+              margin-bottom: 24px;
             }
           }
-          """
 
-          new_preview = """    @media (max-width: 680px) {
+          @media (max-width: 680px) {
             .fabric-preview-card {
               grid-template-columns: minmax(112px, 38%) minmax(0, 1fr);
               gap: 12px;
@@ -104,27 +65,9 @@ jobs:
             .fabric-preview-copy {
               align-self: start;
             }
-
-            .fabric-preview-header {
-              gap: 8px;
-            }
-
-            .fabric-preview-button {
-              padding: 7px 9px;
-            }
           }
-          """
 
-          if "max-height: none;" not in text:
-              if old_preview not in text:
-                  raise SystemExit("Mobile Fabric Preview CSS block not found")
-              text = text.replace(old_preview, new_preview, 1)
-
-          narrow_marker = """    @media (max-width: 420px) {
-            .action-inner {
-          """
-
-          narrow_replacement = """    @media (max-width: 420px) {
+          @media (max-width: 420px) {
             .fabric-preview-card {
               grid-template-columns: minmax(104px, 36%) minmax(0, 1fr);
               gap: 10px;
@@ -154,14 +97,14 @@ jobs:
               padding-top: 10px;
               font-size: .76rem;
             }
-
-            .action-inner {
+          }
           """
 
-          if "grid-template-columns: minmax(104px, 36%)" not in text:
-              if narrow_marker not in text:
-                  raise SystemExit("Narrow mobile CSS marker not found")
-              text = text.replace(narrow_marker, narrow_replacement, 1)
+          if "V13.15 mobile keyboard + fabric preview fixes" not in text:
+              style_end = text.find("</style>")
+              if style_end < 0:
+                  raise SystemExit("Main style closing tag not found")
+              text = text[:style_end] + css_patch + "\n" + text[style_end:]
 
           keyboard_js = r'''
           const updateMobileKeyboardState = () => {
@@ -252,6 +195,7 @@ jobs:
               text = text[:pos] + keyboard_js + text[pos:]
 
           required = [
+              "V13.15 mobile keyboard + fabric preview fixes",
               "html.mobile-keyboard-open .action-bar",
               "const updateMobileKeyboardState =",
               "aspect-ratio: 4 / 5;",
