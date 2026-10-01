@@ -45,7 +45,7 @@ jobs:
               BASE + "/collections?category=Upholstery",
               BASE + "/collections?category=Linings",
           ]
-          MAX_PAGES = 150
+          MAX_PAGES = 50
 
           def norm(url):
               try:
@@ -104,11 +104,8 @@ jobs:
                           continue
                       seen.add(url)
                       try:
-                          resp = await page.goto(url, wait_until="domcontentloaded", timeout=45000)
-                          try:
-                              await page.wait_for_load_state("networkidle", timeout=12000)
-                          except Exception:
-                              await page.wait_for_timeout(2500)
+                          resp = await page.goto(url, wait_until="domcontentloaded", timeout=15000)
+                          await page.wait_for_timeout(1500)
 
                           data = await page.evaluate("""() => {
                             const absolute = (v) => {
