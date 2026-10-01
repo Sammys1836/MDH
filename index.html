@@ -5236,7 +5236,8 @@
           option.addEventListener(
             "pointerdown",
             (event) => {
-              event.preventDefault();
+              // Preserve mouse focus without cancelling native touch scrolling.
+              if (event.pointerType === "mouse") event.preventDefault();
             }
           );
 
@@ -5603,29 +5604,17 @@
 
         window.addEventListener(
           "resize",
-          () => {
-            closeFabricCombobox(
-              selectionField
-            );
-          }
+          () => positionFabricComboboxMenu(selectionField)
         );
 
         document.addEventListener(
           "scroll",
-          () => {
-            const state =
-              fabricComboboxStates.get(
-                selectionField
-              );
-
-            if (
-              state &&
-              !state.menu.hidden
-            ) {
-              closeFabricCombobox(
-                selectionField
-              );
-            }
+          (event) => {
+            const state = fabricComboboxStates.get(selectionField);
+            if (!state || state.menu.hidden) return;
+            // Scrolling the list must preserve its open state and scroll position.
+            if (event.target === state.menu || state.menu.contains(event.target)) return;
+            positionFabricComboboxMenu(selectionField);
           },
           true
         );
