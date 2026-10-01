@@ -1914,18 +1914,30 @@
 
     @media (max-width: 680px) {
       .fabric-preview-card {
-        grid-template-columns: 118px minmax(0, 1fr);
+        grid-template-columns: minmax(112px, 38%) minmax(0, 1fr);
         gap: 12px;
+        align-items: start;
         padding: 11px;
       }
 
-      .fabric-preview-image-wrap,
-      .fabric-preview-image-wrap img {
-        min-height: 142px;
+      .fabric-preview-image-wrap {
+        width: 100%;
+        min-height: 0;
+        aspect-ratio: 4 / 5;
+        align-self: start;
       }
 
       .fabric-preview-image-wrap img {
-        max-height: 180px;
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+        max-height: none;
+        aspect-ratio: 4 / 5;
+        object-fit: cover;
+      }
+
+      .fabric-preview-copy {
+        align-self: start;
       }
 
       .fabric-preview-header {
@@ -2140,32 +2152,40 @@
       }
 
       .shell {
-        margin-bottom: 248px;
+        margin-bottom: 188px;
       }
 
       .action-bar {
         padding-bottom: env(safe-area-inset-bottom, 0px);
       }
 
+      html.mobile-keyboard-open .action-bar {
+        display: none !important;
+      }
+
+      html.mobile-keyboard-open .shell {
+        margin-bottom: 18px;
+      }
+
       .action-inner {
-        width: min(100% - 24px, 560px);
+        width: min(100% - 16px, 560px);
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 8px;
+        gap: 6px;
         align-items: stretch;
-        padding: 10px 0;
+        padding: 7px 0 6px;
       }
 
       .action-inner .button {
         width: 100%;
         min-width: 0;
-        min-height: 48px;
+        min-height: 40px;
         margin: 0;
-        padding: 9px 10px;
-        border-radius: 10px;
-        font-size: .84rem;
+        padding: 7px 8px;
+        border-radius: 9px;
+        font-size: .75rem;
         font-weight: 800;
-        line-height: 1.18;
+        line-height: 1.12;
         white-space: normal;
       }
 
@@ -2182,19 +2202,19 @@
 
       .action-inner #emailForm {
         grid-column: 1 / -1;
-        min-height: 52px;
-        font-size: .94rem;
-        letter-spacing: .005em;
+        min-height: 43px;
+        font-size: .84rem;
+        letter-spacing: .003em;
       }
 
       .status {
         grid-column: 1 / -1;
         width: 100%;
-        margin: 1px 0 0;
-        padding-top: 2px;
+        margin: 0;
+        padding-top: 0;
         color: var(--muted);
-        font-size: .73rem;
-        line-height: 1.3;
+        font-size: .64rem;
+        line-height: 1.15;
         text-align: center;
         order: 6;
       }
@@ -2207,29 +2227,59 @@
     }
 
     @media (max-width: 420px) {
+      .fabric-preview-card {
+        grid-template-columns: minmax(104px, 36%) minmax(0, 1fr);
+        gap: 10px;
+      }
+
+      .fabric-preview-header {
+        flex-wrap: wrap;
+      }
+
+      .fabric-preview-button {
+        width: 100%;
+        min-height: 36px;
+      }
+
+      .fabric-preview-meta {
+        gap: 5px;
+        margin-top: 10px;
+      }
+
+      .fabric-preview-meta span:not(:empty) {
+        min-height: 25px;
+        padding: 4px 7px;
+        font-size: .72rem;
+      }
+
+      .fabric-preview-source {
+        padding-top: 10px;
+        font-size: .76rem;
+      }
+
       .action-inner {
-        width: min(100% - 18px, 560px);
-        gap: 7px;
-        padding: 9px 0;
+        width: min(100% - 12px, 560px);
+        gap: 5px;
+        padding: 6px 0 5px;
       }
 
       .action-inner .button {
-        min-height: 46px;
-        padding: 8px 8px;
-        font-size: .79rem;
+        min-height: 38px;
+        padding: 6px 7px;
+        font-size: .71rem;
       }
 
       .action-inner #emailForm {
-        min-height: 50px;
-        font-size: .9rem;
+        min-height: 41px;
+        font-size: .8rem;
       }
 
       .status {
-        font-size: .7rem;
+        font-size: .61rem;
       }
 
       .shell {
-        margin-bottom: 238px;
+        margin-bottom: 176px;
       }
     }
 
@@ -2267,80 +2317,7 @@
         appearance: none;
       }
     }
-  
-/* V13.15 mobile keyboard + fabric preview fixes */
-@media (max-width: 860px) {
-  html.mobile-keyboard-open .action-bar {
-    display: none !important;
-  }
-
-  html.mobile-keyboard-open .shell {
-    margin-bottom: 24px;
-  }
-}
-
-@media (max-width: 680px) {
-  .fabric-preview-card {
-    grid-template-columns: minmax(112px, 38%) minmax(0, 1fr);
-    gap: 12px;
-    align-items: start;
-    padding: 11px;
-  }
-
-  .fabric-preview-image-wrap {
-    width: 100%;
-    min-height: 0;
-    aspect-ratio: 4 / 5;
-    align-self: start;
-  }
-
-  .fabric-preview-image-wrap img {
-    width: 100%;
-    height: 100%;
-    min-height: 0;
-    max-height: none;
-    aspect-ratio: 4 / 5;
-    object-fit: cover;
-  }
-
-  .fabric-preview-copy {
-    align-self: start;
-  }
-}
-
-@media (max-width: 420px) {
-  .fabric-preview-card {
-    grid-template-columns: minmax(104px, 36%) minmax(0, 1fr);
-    gap: 10px;
-  }
-
-  .fabric-preview-header {
-    flex-wrap: wrap;
-  }
-
-  .fabric-preview-button {
-    width: 100%;
-    min-height: 36px;
-  }
-
-  .fabric-preview-meta {
-    gap: 5px;
-    margin-top: 10px;
-  }
-
-  .fabric-preview-meta span:not(:empty) {
-    min-height: 25px;
-    padding: 4px 7px;
-    font-size: .72rem;
-  }
-
-  .fabric-preview-source {
-    padding-top: 10px;
-    font-size: .76rem;
-  }
-}
-
-</style>
+  </style>
 </head>
 <body>
 <div aria-live="polite" class="toast" id="toast" role="status"></div>
@@ -9694,83 +9671,155 @@
       applyLanguage(currentLanguage, false);
       restoreDraft();
 
-const updateMobileKeyboardState = () => {
-  const isMobileLayout =
-    window.matchMedia(
-      "(max-width: 860px)"
-    ).matches;
-  const isTouchLike =
-    window.matchMedia(
-      "(pointer: coarse)"
-    ).matches ||
-    "ontouchstart" in window;
+      const isMobileKeyboardLayout = () =>
+        window.matchMedia(
+          "(max-width: 860px)"
+        ).matches &&
+        (
+          window.matchMedia(
+            "(pointer: coarse)"
+          ).matches ||
+          "ontouchstart" in window
+        );
 
-  if (
-    !isMobileLayout ||
-    !isTouchLike ||
-    !window.visualViewport
-  ) {
-    document.documentElement.classList.remove(
-      "mobile-keyboard-open"
-    );
-    return;
-  }
+      const isKeyboardCapableControl = (
+        element
+      ) => {
+        if (!(element instanceof Element)) {
+          return false;
+        }
 
-  const viewportHeight =
-    window.visualViewport.height;
-  const layoutHeight =
-    window.innerHeight;
-  const keyboardReduction =
-    layoutHeight - viewportHeight;
+        if (
+          element.matches(
+            "textarea, [contenteditable='true']"
+          )
+        ) {
+          return true;
+        }
 
-  const keyboardIsOpen =
-    keyboardReduction > 140 &&
-    viewportHeight <
-      layoutHeight * 0.82;
+        if (!element.matches("input")) {
+          return false;
+        }
 
-  document.documentElement.classList.toggle(
-    "mobile-keyboard-open",
-    keyboardIsOpen
-  );
-};
+        const nonKeyboardTypes =
+          new Set([
+            "button",
+            "checkbox",
+            "color",
+            "file",
+            "hidden",
+            "image",
+            "radio",
+            "range",
+            "reset",
+            "submit"
+          ]);
 
-if (window.visualViewport) {
-  window.visualViewport.addEventListener(
-    "resize",
-    updateMobileKeyboardState
-  );
-  window.visualViewport.addEventListener(
-    "scroll",
-    updateMobileKeyboardState
-  );
-}
+        return !nonKeyboardTypes.has(
+          String(
+            element.getAttribute("type") ||
+            "text"
+          ).toLowerCase()
+        );
+      };
 
-window.addEventListener(
-  "resize",
-  updateMobileKeyboardState
-);
+      const getVisualKeyboardState = () => {
+        if (
+          !isMobileKeyboardLayout() ||
+          !window.visualViewport
+        ) {
+          return false;
+        }
 
-document.addEventListener(
-  "focusin",
-  () => {
-    window.setTimeout(
-      updateMobileKeyboardState,
-      60
-    );
-  }
-);
+        const viewportHeight =
+          window.visualViewport.height;
+        const layoutHeight =
+          Math.max(
+            window.innerHeight,
+            document.documentElement.clientHeight
+          );
+        const heightReduction =
+          layoutHeight - viewportHeight;
 
-document.addEventListener(
-  "focusout",
-  () => {
-    window.setTimeout(
-      updateMobileKeyboardState,
-      120
-    );
-  }
-);
+        return (
+          heightReduction > 110 ||
+          viewportHeight <
+            layoutHeight * 0.86
+        );
+      };
 
-updateMobileKeyboardState();
+      const updateMobileKeyboardState = () => {
+        if (!isMobileKeyboardLayout()) {
+          document.documentElement.classList.remove(
+            "mobile-keyboard-open"
+          );
+          return;
+        }
+
+        const activeElement =
+          document.activeElement;
+        const keyboardControlFocused =
+          isKeyboardCapableControl(
+            activeElement
+          );
+        const visualKeyboardOpen =
+          getVisualKeyboardState();
+
+        document.documentElement.classList.toggle(
+          "mobile-keyboard-open",
+          keyboardControlFocused ||
+            visualKeyboardOpen
+        );
+      };
+
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener(
+          "resize",
+          updateMobileKeyboardState
+        );
+        window.visualViewport.addEventListener(
+          "scroll",
+          updateMobileKeyboardState
+        );
+      }
+
+      window.addEventListener(
+        "resize",
+        updateMobileKeyboardState
+      );
+
+      document.addEventListener(
+        "focusin",
+        (event) => {
+          if (
+            isMobileKeyboardLayout() &&
+            isKeyboardCapableControl(
+              event.target
+            )
+          ) {
+            document.documentElement.classList.add(
+              "mobile-keyboard-open"
+            );
+          }
+
+          window.setTimeout(
+            updateMobileKeyboardState,
+            40
+          );
+        }
+      );
+
+      document.addEventListener(
+        "focusout",
+        () => {
+          window.setTimeout(
+            updateMobileKeyboardState,
+            220
+          );
+        }
+      );
+
+      updateMobileKeyboardState();
 
     })();
   </script>
