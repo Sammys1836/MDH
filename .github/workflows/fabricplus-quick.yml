@@ -1,0 +1,93 @@
+name: One-time FabricPlus quick fetch
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/fabricplus-quick.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch FabricPlus pages
+        run: |
+          rm -rf fabricplus_raw
+          mkdir -p fabricplus_raw
+          python3 - <<'PY'
+          import urllib.request, urllib.parse, pathlib, re, json, time
+          from html import unescape
+
+          base = "https://www.fabricplus.net"
+          seeds = [
+            base + "/",
+            base + "/collections",
+            base + "/collections/nova",
+            base + "/collections/natura",
+            base + "/collections/velmar",
+            base + "/collections/fluid",
+            base + "/collections?category=Sheers",
+            base + "/collections?category=Drapery",
+            base + "/collections?category=Blackouts%20%26%20dimouts",
+            base + "/collections?category=Upholstery",
+            base + "/collections?category=Linings",
+          ]
+          q = list(seeds)
+          seen = set()
+          manifest = []
+          headers = {"User-Agent":"Mozilla/5.0 AppleWebKit/537.36 Chrome/124 Safari/537.36"}
+
+          def norm(u):
+            try:
+              u = urllib.parse.urljoin(base + "/", u)
+              p = urllib.parse.urlsplit(u)
+              if p.hostname not in ("fabricplus.net","www.fabricplus.net"): return None
+              return urllib.parse.urlunsplit(("https","www.fabricplus.net",p.path or "/",p.query,""))
+            except: return None
+
+          while q and len(seen) < 100:
+            url = norm(q.pop(0))
+            if not url or url in seen: continue
+            seen.add(url)
+            try:
+              req = urllib.request.Request(url, headers=headers)
+              with urllib.request.urlopen(req, timeout=12) as r:
+                raw = r.read()
+                ctype = r.headers.get("content-type","")
+                status = getattr(r,"status",200)
+              text = raw.decode("utf-8","replace")
+              slug = urllib.parse.urlsplit(url).path.strip("/") or "home"
+              query = urllib.parse.urlsplit(url).query
+              if query:
+                slug += "__" + re.sub(r"[^A-Za-z0-9_-]+","_",query)[:80]
+              fn = re.sub(r"[^A-Za-z0-9._-]+","_",slug) + ".html"
+              pathlib.Path("fabricplus_raw",fn).write_text(text,encoding="utf-8")
+              manifest.append({"url":url,"file":fn,"status":status,"bytes":len(raw),"content_type":ctype})
+
+              for href in re.findall(r'href=["\']([^"\']+)["\']', text, flags=re.I):
+                u = norm(unescape(href))
+                if not u: continue
+                p = urllib.parse.urlsplit(u)
+                if p.path == "/collections" or p.path.startswith("/collections/"):
+                  if u not in seen and u not in q:
+                    q.append(u)
+            except Exception as e:
+              manifest.append({"url":url,"error":repr(e)})
+
+          pathlib.Path("fabricplus_raw/manifest.json").write_text(json.dumps(manifest,indent=2),encoding="utf-8")
+          print(json.dumps(manifest,indent=2))
+          PY
+
+      - name: Commit quick fetch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add fabricplus_raw
+          git commit -m "Temporary FabricPlus raw fetch" || exit 0
+          git push
