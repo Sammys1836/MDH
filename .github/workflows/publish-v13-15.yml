@@ -1,0 +1,276 @@
+name: Publish MDH V13.15
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/publish-v13-15.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Apply V13.15 mobile fixes
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path("index.html")
+          text = path.read_text(encoding="utf-8")
+
+          mobile_marker = """      .action-bar {
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+          }
+          """
+
+          keyboard_css = """
+          html.mobile-keyboard-open .action-bar {
+            display: none !important;
+          }
+
+          html.mobile-keyboard-open .shell {
+            margin-bottom: 24px;
+          }
+
+          """
+
+          if "html.mobile-keyboard-open .action-bar" not in text:
+              if mobile_marker not in text:
+                  raise SystemExit("Mobile action-bar CSS marker not found")
+              text = text.replace(
+                  mobile_marker,
+                  mobile_marker + "\n" + keyboard_css,
+                  1,
+              )
+
+          old_preview = """    @media (max-width: 680px) {
+            .fabric-preview-card {
+              grid-template-columns: 118px minmax(0, 1fr);
+              gap: 12px;
+              padding: 11px;
+            }
+
+            .fabric-preview-image-wrap,
+            .fabric-preview-image-wrap img {
+              min-height: 142px;
+            }
+
+            .fabric-preview-image-wrap img {
+              max-height: 180px;
+            }
+
+            .fabric-preview-header {
+              gap: 8px;
+            }
+
+            .fabric-preview-button {
+              padding: 7px 9px;
+            }
+          }
+          """
+
+          new_preview = """    @media (max-width: 680px) {
+            .fabric-preview-card {
+              grid-template-columns: minmax(112px, 38%) minmax(0, 1fr);
+              gap: 12px;
+              align-items: start;
+              padding: 11px;
+            }
+
+            .fabric-preview-image-wrap {
+              width: 100%;
+              min-height: 0;
+              aspect-ratio: 4 / 5;
+              align-self: start;
+            }
+
+            .fabric-preview-image-wrap img {
+              width: 100%;
+              height: 100%;
+              min-height: 0;
+              max-height: none;
+              aspect-ratio: 4 / 5;
+              object-fit: cover;
+            }
+
+            .fabric-preview-copy {
+              align-self: start;
+            }
+
+            .fabric-preview-header {
+              gap: 8px;
+            }
+
+            .fabric-preview-button {
+              padding: 7px 9px;
+            }
+          }
+          """
+
+          if "max-height: none;" not in text:
+              if old_preview not in text:
+                  raise SystemExit("Mobile Fabric Preview CSS block not found")
+              text = text.replace(old_preview, new_preview, 1)
+
+          narrow_marker = """    @media (max-width: 420px) {
+            .action-inner {
+          """
+
+          narrow_replacement = """    @media (max-width: 420px) {
+            .fabric-preview-card {
+              grid-template-columns: minmax(104px, 36%) minmax(0, 1fr);
+              gap: 10px;
+            }
+
+            .fabric-preview-header {
+              flex-wrap: wrap;
+            }
+
+            .fabric-preview-button {
+              width: 100%;
+              min-height: 36px;
+            }
+
+            .fabric-preview-meta {
+              gap: 5px;
+              margin-top: 10px;
+            }
+
+            .fabric-preview-meta span:not(:empty) {
+              min-height: 25px;
+              padding: 4px 7px;
+              font-size: .72rem;
+            }
+
+            .fabric-preview-source {
+              padding-top: 10px;
+              font-size: .76rem;
+            }
+
+            .action-inner {
+          """
+
+          if "grid-template-columns: minmax(104px, 36%)" not in text:
+              if narrow_marker not in text:
+                  raise SystemExit("Narrow mobile CSS marker not found")
+              text = text.replace(narrow_marker, narrow_replacement, 1)
+
+          keyboard_js = r'''
+          const updateMobileKeyboardState = () => {
+            const isMobileLayout =
+              window.matchMedia(
+                "(max-width: 860px)"
+              ).matches;
+            const isTouchLike =
+              window.matchMedia(
+                "(pointer: coarse)"
+              ).matches ||
+              "ontouchstart" in window;
+
+            if (
+              !isMobileLayout ||
+              !isTouchLike ||
+              !window.visualViewport
+            ) {
+              document.documentElement.classList.remove(
+                "mobile-keyboard-open"
+              );
+              return;
+            }
+
+            const viewportHeight =
+              window.visualViewport.height;
+            const layoutHeight =
+              window.innerHeight;
+            const keyboardReduction =
+              layoutHeight - viewportHeight;
+
+            const keyboardIsOpen =
+              keyboardReduction > 140 &&
+              viewportHeight <
+                layoutHeight * 0.82;
+
+            document.documentElement.classList.toggle(
+              "mobile-keyboard-open",
+              keyboardIsOpen
+            );
+          };
+
+          if (window.visualViewport) {
+            window.visualViewport.addEventListener(
+              "resize",
+              updateMobileKeyboardState
+            );
+            window.visualViewport.addEventListener(
+              "scroll",
+              updateMobileKeyboardState
+            );
+          }
+
+          window.addEventListener(
+            "resize",
+            updateMobileKeyboardState
+          );
+
+          document.addEventListener(
+            "focusin",
+            () => {
+              window.setTimeout(
+                updateMobileKeyboardState,
+                60
+              );
+            }
+          );
+
+          document.addEventListener(
+            "focusout",
+            () => {
+              window.setTimeout(
+                updateMobileKeyboardState,
+                120
+              );
+            }
+          );
+
+          updateMobileKeyboardState();
+
+          '''
+
+          if "const updateMobileKeyboardState =" not in text:
+              marker = "    })();"
+              pos = text.rfind(marker)
+              if pos < 0:
+                  raise SystemExit("Main script IIFE ending not found")
+              text = text[:pos] + keyboard_js + text[pos:]
+
+          required = [
+              "html.mobile-keyboard-open .action-bar",
+              "const updateMobileKeyboardState =",
+              "aspect-ratio: 4 / 5;",
+              "max-height: none;",
+              "fabricplus_catalog.js?v=20261001",
+          ]
+          for token in required:
+              if token not in text:
+                  raise SystemExit(f"Verification failed: {token}")
+
+          path.write_text(text, encoding="utf-8")
+          PY
+
+      - name: Publish and remove one-time workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/publish-v13-15.yml
+          git add index.html
+          git commit -m "Publish Miami Drapery Hardware form V13.15"
+          git pull --rebase origin main
+          git push
