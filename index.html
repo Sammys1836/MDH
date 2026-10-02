@@ -1561,12 +1561,16 @@
 
 
     .header-controls {
-      display: flex;
-      justify-content: flex-end;
-      align-items: flex-start;
+      display: grid;
+      grid-template-columns: auto auto auto;
+      justify-content: end;
+      align-items: start;
       gap: 9px;
-      flex-wrap: wrap;
       margin-bottom: 14px;
+    }
+
+    .header-controls > * {
+      min-width: 0;
     }
 
     .header-controls .language-picker {
@@ -1951,23 +1955,68 @@
 
     @media (max-width: 860px) {
       .header-controls {
+        width: 100%;
+        grid-template-columns:
+          minmax(0, .9fr)
+          minmax(0, 1.25fr)
+          minmax(0, 1.4fr);
+        justify-content: stretch;
+        gap: 7px;
+      }
+
+      .header-controls .bulk-entry-button,
+      .header-controls .language-button,
+      .header-controls .theme-button {
+        width: 100%;
+        min-width: 0;
+        min-height: 44px;
         justify-content: center;
-        flex-wrap: wrap;
+        padding: 8px 9px;
+        font-size: .78rem;
+        line-height: 1.15;
+        white-space: normal;
+        text-align: center;
+      }
+
+      .header-controls .language-picker,
+      .header-controls .theme-picker {
+        width: 100%;
+        min-width: 0;
       }
 
       html[dir="rtl"] .header-controls {
-        justify-content: center;
+        justify-content: stretch;
       }
 
+      .language-menu,
       .theme-menu {
         left: 50%;
         right: auto;
         transform: translateX(-50%);
       }
 
+      html[dir="rtl"] .language-menu,
       html[dir="rtl"] .theme-menu {
         left: 50%;
         right: auto;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .header-controls {
+        gap: 5px;
+      }
+
+      .header-controls .bulk-entry-button,
+      .header-controls .language-button,
+      .header-controls .theme-button {
+        min-height: 42px;
+        padding: 7px 6px;
+        font-size: .69rem;
+      }
+
+      .header-controls .language-caret {
+        font-size: .68em;
       }
     }
 
@@ -2126,8 +2175,8 @@
       }
 
       .logo {
-        max-width: 272px;
-        max-height: 71px;
+        max-width: 320px;
+        max-height: 84px;
         object-position: center;
       }
 
@@ -5236,8 +5285,7 @@
           option.addEventListener(
             "pointerdown",
             (event) => {
-              // Preserve mouse focus without cancelling native touch scrolling.
-              if (event.pointerType === "mouse") event.preventDefault();
+              event.preventDefault();
             }
           );
 
@@ -5604,17 +5652,29 @@
 
         window.addEventListener(
           "resize",
-          () => positionFabricComboboxMenu(selectionField)
+          () => {
+            closeFabricCombobox(
+              selectionField
+            );
+          }
         );
 
         document.addEventListener(
           "scroll",
-          (event) => {
-            const state = fabricComboboxStates.get(selectionField);
-            if (!state || state.menu.hidden) return;
-            // Scrolling the list must preserve its open state and scroll position.
-            if (event.target === state.menu || state.menu.contains(event.target)) return;
-            positionFabricComboboxMenu(selectionField);
+          () => {
+            const state =
+              fabricComboboxStates.get(
+                selectionField
+              );
+
+            if (
+              state &&
+              !state.menu.hidden
+            ) {
+              closeFabricCombobox(
+                selectionField
+              );
+            }
           },
           true
         );
