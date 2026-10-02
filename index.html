@@ -2391,8 +2391,8 @@
         display: grid;
         grid-template-columns:
           max-content
-          minmax(150px, 180px)
-          minmax(225px, 275px);
+          minmax(145px, 172px)
+          minmax(180px, 215px);
         justify-content: end;
         align-items: center;
         gap: 8px;
@@ -2419,7 +2419,16 @@
         width: 100%;
         min-width: 0;
         justify-content: center;
-        padding-inline: 10px;
+      }
+
+      .header-controls .language-button {
+        padding-inline: 9px;
+      }
+
+      .header-controls .theme-button {
+        padding-inline: 8px;
+        font-size: .81rem;
+        gap: 6px;
       }
 
       .header-controls .language-button span:not(.language-caret),
@@ -2438,9 +2447,9 @@
         width: 100%;
         display: grid;
         grid-template-columns:
-          minmax(0, .82fr)
-          minmax(0, 1.12fr)
-          minmax(0, 1.48fr);
+          minmax(0, .86fr)
+          minmax(0, 1.10fr)
+          minmax(0, 1.30fr);
         gap: 5px;
         justify-content: stretch;
         align-items: stretch;
