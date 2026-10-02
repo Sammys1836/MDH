@@ -2548,6 +2548,33 @@
       background: var(--surface);
     }
 
+
+    /* Version 13.21: ensure the white/red MDF logo is visible in Light mode */
+    html[data-theme="light"] .logo-wrap {
+      width: fit-content;
+      min-height: 0;
+      padding: 11px 15px;
+      background:
+        linear-gradient(145deg, #223244, #172536);
+      border: 1px solid rgba(38, 53, 72, .14);
+      border-radius: 14px;
+      box-shadow:
+        0 7px 18px rgba(38, 53, 72, .10);
+    }
+
+    html[data-theme="light"] .logo {
+      filter:
+        drop-shadow(0 1px 1px rgba(0, 0, 0, .16));
+    }
+
+    @media (max-width: 860px) {
+      html[data-theme="light"] .logo-wrap {
+        margin-inline: auto;
+        padding: 9px 12px;
+        border-radius: 12px;
+      }
+    }
+
 </style>
 </head>
 <body>
