@@ -2580,9 +2580,203 @@
     }
     }
 
+
+    body.portal-auth-pending .shell,
+    body.portal-auth-pending .action-bar,
+    body.portal-signed-out .shell,
+    body.portal-signed-out .action-bar,
+    body.portal-signed-out .portal-user-bar { display: none !important; }
+
+    body.portal-authenticated .portal-auth-shell { display: none !important; }
+
+    .portal-auth-shell {
+      min-height: 100vh; display:grid; place-items:center; padding:28px 18px;
+      background: radial-gradient(circle at 18% 12%, rgba(224,83,96,.12), transparent 26rem),
+                  radial-gradient(circle at 82% 84%, rgba(66,104,135,.15), transparent 30rem),
+                  #101821;
+    }
+    .portal-auth-card {
+      width:min(680px,100%); padding:28px; color:#e8eef4; background:rgba(24,33,43,.97);
+      border:1px solid #344554; border-radius:22px; box-shadow:0 28px 80px rgba(0,0,0,.35);
+    }
+    .portal-auth-brand { display:grid; grid-template-columns:minmax(150px,220px) 1fr; gap:24px; align-items:center; margin-bottom:25px; }
+    .portal-auth-logo { display:block; width:100%; max-height:74px; object-fit:contain; object-position:left center; }
+    .portal-auth-eyebrow,.portal-modal-eyebrow { margin:0 0 5px; color:#e05360; font-size:.72rem; font-weight:900; letter-spacing:.11em; text-transform:uppercase; }
+    .portal-auth-brand h1 { margin:0; color:#fff; font-size:1.65rem; line-height:1.15; }
+    .portal-auth-brand p:last-child { margin:7px 0 0; color:#aeb9c5; font-size:.88rem; line-height:1.5; }
+    .portal-auth-tabs { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:18px; padding:5px; background:#111a23; border:1px solid #334250; border-radius:12px; }
+    .portal-auth-tab { min-height:42px; color:#b8c3cd; background:transparent; border:0; border-radius:9px; cursor:pointer; font-weight:800; }
+    .portal-auth-tab.active { color:#fff; background:#293746; }
+    .portal-auth-form { display:grid; gap:13px; }
+    .portal-auth-form[hidden] { display:none !important; }
+    .portal-auth-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .portal-auth-form label { display:grid; gap:6px; color:#dce5ed; font-size:.78rem; font-weight:800; }
+    .portal-auth-form input { min-height:47px; width:100%; padding:10px 12px; color:#edf3f8; background:#111923; border:1px solid #415161; border-radius:10px; outline:none; }
+    .portal-auth-submit { min-height:48px; margin-top:3px; color:#fff; background:#e05360; border:0; border-radius:11px; cursor:pointer; font-weight:900; }
+    .portal-auth-submit:disabled { cursor:progress; opacity:.65; }
+    .portal-auth-message { margin-top:14px; padding:10px 12px; color:#f5d8db; background:rgba(224,83,96,.13); border:1px solid rgba(224,83,96,.4); border-radius:10px; font-size:.82rem; font-weight:700; }
+    .portal-auth-message.success { color:#d9f3e3; background:rgba(65,164,105,.12); border-color:rgba(65,164,105,.35); }
+    .portal-auth-note { margin:16px 0 0; color:#82909d; font-size:.74rem; text-align:center; }
+
+    .portal-user-bar { position:sticky; top:0; z-index:85; color:#e6edf4; background:rgba(24,33,43,.96); border-bottom:1px solid #34414d; backdrop-filter:blur(12px); }
+    .portal-user-inner { width:min(1440px,calc(100% - 28px)); min-height:58px; display:flex; align-items:center; justify-content:space-between; gap:18px; margin:0 auto; padding:7px 0; }
+    .portal-user-identity { min-width:0; display:flex; align-items:center; gap:9px; }
+    .portal-user-avatar { width:36px; height:36px; flex:0 0 36px; display:grid; place-items:center; color:#fff; background:#e05360; border-radius:50%; font-weight:900; }
+    .portal-user-identity div { min-width:0; display:grid; }
+    .portal-user-identity strong { overflow:hidden; color:#f3f6f9; font-size:.84rem; text-overflow:ellipsis; white-space:nowrap; }
+    .portal-user-identity span:not(.portal-user-avatar) { overflow:hidden; color:#aeb9c5; font-size:.7rem; text-overflow:ellipsis; white-space:nowrap; }
+    .portal-user-actions { display:flex; align-items:center; justify-content:flex-end; gap:7px; flex-wrap:wrap; }
+    .portal-bar-button,.portal-primary-button { min-height:36px; padding:7px 10px; border-radius:9px; cursor:pointer; font-size:.74rem; font-weight:850; }
+    .portal-bar-button { color:#e6edf4; background:#283745; border:1px solid #465563; }
+    .portal-bar-button.admin,.portal-primary-button { color:#fff; background:#ad3540; border:1px solid #ad3540; }
+    .portal-bar-button.subtle { color:#c4cdd5; background:transparent; }
+
+    .portal-modal { position:fixed; inset:0; z-index:20000; display:grid; place-items:center; padding:20px; background:rgba(9,13,18,.78); backdrop-filter:blur(6px); }
+    .portal-modal[hidden] { display:none !important; }
+    .portal-modal-card { width:min(980px,100%); max-height:calc(100vh - 40px); overflow:auto; color:var(--text); background:var(--surface); border:1px solid var(--border-soft); border-radius:20px; box-shadow:0 28px 90px rgba(0,0,0,.36); }
+    .portal-admin-card { width:min(1320px,100%); }
+    .portal-modal-head { position:sticky; top:0; z-index:2; display:flex; align-items:center; justify-content:space-between; gap:16px; padding:18px 20px; background:var(--surface); border-bottom:1px solid var(--border-soft); }
+    .portal-modal-head h2 { margin:0; color:var(--navy); font-size:1.25rem; }
+    .portal-modal-close { width:38px; height:38px; display:grid; place-items:center; padding:0; color:var(--text); background:var(--surface-soft); border:1px solid var(--border-soft); border-radius:50%; cursor:pointer; font-size:1.35rem; }
+    .portal-modal-toolbar,.portal-admin-section-head { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .portal-modal-toolbar { padding:15px 20px; border-bottom:1px solid var(--border-soft); }
+    .portal-modal-toolbar input,.portal-admin-section-head input { width:min(360px,100%); min-height:38px; padding:7px 10px; color:var(--text); background:var(--field); border:1px solid var(--border); border-radius:9px; }
+
+    .portal-document-list { display:grid; gap:10px; padding:16px 20px 22px; }
+    .portal-document-card { display:grid; grid-template-columns:minmax(0,1.5fr) repeat(3,minmax(90px,.5fr)) auto; gap:12px; align-items:center; padding:13px 14px; background:var(--surface-soft); border:1px solid var(--border-soft); border-radius:12px; }
+    .portal-document-main strong { display:block; overflow:hidden; color:var(--navy); text-overflow:ellipsis; white-space:nowrap; }
+    .portal-document-main span,.portal-document-meta span { color:var(--muted); font-size:.72rem; }
+    .portal-document-meta { display:grid; gap:2px; }
+    .portal-document-actions { display:flex; gap:6px; }
+    .portal-mini-button { min-height:32px; padding:5px 9px; color:var(--text); background:var(--surface); border:1px solid var(--border); border-radius:8px; cursor:pointer; font-size:.7rem; font-weight:800; }
+    .portal-empty { padding:32px 18px; color:var(--muted); text-align:center; border:1px dashed var(--border); border-radius:12px; }
+
+    .portal-admin-stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; padding:16px 20px 0; }
+    .portal-stat { padding:14px; background:var(--surface-soft); border:1px solid var(--border-soft); border-radius:12px; }
+    .portal-stat strong { display:block; color:var(--navy); font-size:1.4rem; }
+    .portal-stat span { color:var(--muted); font-size:.72rem; font-weight:700; }
+    .portal-admin-section { padding:18px 20px 20px; }
+    .portal-admin-section + .portal-admin-section { border-top:1px solid var(--border-soft); }
+    .portal-admin-section h3 { margin:0; color:var(--navy); font-size:1rem; }
+    .portal-table-wrap { margin-top:11px; overflow:auto; border:1px solid var(--border-soft); border-radius:11px; }
+    .portal-table { width:100%; min-width:850px; border-collapse:collapse; }
+    .portal-table th,.portal-table td { padding:9px 10px; border-bottom:1px solid var(--border-soft); text-align:left; vertical-align:middle; font-size:.73rem; }
+    .portal-table th { color:var(--navy); background:var(--surface-soft); font-weight:900; }
+    .portal-status-pill { display:inline-flex; min-height:24px; align-items:center; padding:3px 7px; border-radius:999px; background:var(--surface-soft); border:1px solid var(--border-soft); font-size:.65rem; font-weight:850; text-transform:capitalize; }
+
+    @media(max-width:760px){
+      .portal-auth-card{padding:20px 16px}
+      .portal-auth-brand{grid-template-columns:1fr;gap:12px;text-align:center}
+      .portal-auth-logo{width:min(240px,76%);margin:0 auto;object-position:center}
+      .portal-auth-grid{grid-template-columns:1fr}
+      .portal-user-inner{width:calc(100% - 16px);align-items:flex-start;gap:8px}
+      .portal-user-actions{gap:5px}
+      .portal-bar-button{min-height:32px;padding:5px 7px;font-size:.65rem}
+      .portal-document-card{grid-template-columns:1fr 1fr}
+      .portal-document-main,.portal-document-actions{grid-column:1 / -1}
+      .portal-admin-stats{grid-template-columns:1fr 1fr}
+      .portal-modal{padding:8px}
+      .portal-modal-card{max-height:calc(100vh - 16px);border-radius:14px}
+      .portal-modal-toolbar,.portal-admin-section-head{align-items:stretch;flex-direction:column}
+      .portal-modal-toolbar input,.portal-admin-section-head input{width:100%}
+    }
+
+    @media print {
+      .portal-user-bar,.portal-auth-shell,.portal-modal{display:none!important}
+    }
+
 </style>
 </head>
-<body>
+<body class="portal-auth-pending">
+<div class="portal-auth-shell" id="portalAuthShell">
+  <div class="portal-auth-card">
+    <div class="portal-auth-brand">
+      <img class="portal-auth-logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABDgAAAD6CAYAAABEf/cjAAAweElEQVR42u3de7hkZXnn/d+9au/dVavOuwGxOQiC6IhClG6bHgwKIq+BEfCAiBpjGwMaDeRwTeiYa15MJpOB5HJGNDHSeVUkoigBFOyIrYKgHGzQIAcjGUFphoN92FW1a61Vu7ur1v3+QStEoI+1dx3W9/OPAteuqvVbTz2Hu561lgQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwEKz3f2DJGo6sT0tQNfqfKn6ITPbRhrAeHL3iU7c/Khk55HGU8JSzfrxOowrwDO7HUnNp/1zV662TA1JkeRtydoynzEFG1P5LyR/3Cy3waz3eD5fe5R5yWDQn83POAHQT9BP7PL6nBPSjxTte700eEu5XN5AGMB4abVa05M5/7Kk15HG/AxIjCtA33Ul/V9JD5nrIZkecvcHgjS4Z1Gl8pCZpUTEwmUUFy4A/QT9xE6X5pyQPnE91FPvtHJ58f2EAYyHudnZI9IgvU7Si0lj/gYkxhVgQcWSfuzSvXL7oQK/PQyr95hZl2joz4Z94QLQT9BP7AwFjv6mGbn8XcVi/auEAYy2KGq9ISe/0qUqaczvgMS4AgxcLOkHkm5PZd8pFuNbzJYkxEJ/NmwLF4B+gn5i50tyTki/ubv/ZbFc/whRAKM68DTOl+yjknKkMf8DEuMKMHS2SLrVpG+lprVhWP2hmfE9pT8b+MIFoJ+gn9gZChzz58pCsf1es4M6RAGMBndflMSznzL5e0hj4QYkxhVg6D1irq+nQfq1MKx/nctZ6M8GtXAB6CfoJ3aGAse8rpZ0hweTby4Wi48TBjDc2u32vjnr/bOk40ljYQckxhVgpDwh86tcdlmxWPshcdCfLeTCBaCfoJ/YmYBI55HpWPPuXXHcWkYYwPCKosbROevdKYobALAz+8vtD8z1gyRq3p1EjfPb7fa+xAIAGAYUOOadLzH3WzpR611kAQyfpN08M5DdJukFpAEAu+VoyT6Ws97/TaLG5VE0cxSRAAAGiQLHwsi7/PIkal7k7mQODAF3tyRqXiDTlZJCEgGAPTYl2W8HCn6URM1vxXHrVHfn0gQAwIJjsb1wTNIFc3HzOt+8uUIcwOC4P1HsJK2rJF1EPwgAffU6c//aXNz6UdJunkmhAwCwkJjYL/TCSnZqZ1Huu51O4xDSABZekmw6oBPnb5brLaQBAPM139HLZfpyJ259P45bv0UiAICFQIFjMI7ynt3ZaTdeSxTAwkmS2RVKJ+6SdAxpAMCCWGbu/5JEzW9H0czLiQMAMJ8ocAzOPm72jU7ceC9RAPOvE7XeoTS9UdL+pAEAC+7EQMEPO+3mpTx1BQAwXyhwDNaUu326025e6u4TxAH0n7vnkqh5kcuvkJQnEQAYmAk3nZOz3v1Ju/V24gAA9BsFjmFYgJnOSeLWmkajUSMNoI/frY0by5149lpJF5AGAAyNfWX+xU7U+FqSbD6QOAAA/UKBY0iYdPKiSVu3ZXb2JaQB7L25VuvwpDBxh+RvJA0AGD4uO1Vp7p4kap1NGgCAfqDAMVxe1AvS2+ai5klEAey5uaj5+jTn60z2UtIAgKFWl/wLSdS43P2JInEAAPYGBY4hHOhT6YYkarKlHtgDcdw8J5XWPDlpBgCMBvvtJM7fyZNWAAB7gwLHcMpJuqjTbv6ju08RB7Bz7j6RxI1PmOtSSZMkAgCjxaT/FFhwWxw3TicNAMCeoMAxzAs20/s6SfPGKIqeRxrAc5udnV3ciVtr5fYh0gCAUZ78qGRu18btxkcIAwCwuyhwDP1Ab8cF6t4Vx81XEgbwTFE08/KJIL1T0gmkAQBjwczswjhqfoadrACA3UGBYzQcaNLNSdJ4E1EAT4nj1ik5Bd+VdChpAMB4MWnlXNz6ivsjBdIAAOwKChyjwlVSalfH7cZH3N0IBFmXRI3zzf16l6qkAQDjOv3Rb3Xiyjd88+YKaQAAdoYCx2gxM7uwE7e+6P5YSBzI5GTXfVEctT4n2cfowwAgEz3/b3YW5b7ZbDZ5OhYAYIdYHIymszpx+L1OZ+ZgokCWxPHGJZ24dYvJ300aAJApr5qa0A2+cWOZKAAAz4UCx+h6hffsjiRpvYookAVx3HiF+eTtkmjzAJBNr+oUJr/q7nmiAAA8GwocI82er9Rv6UQNfs3GWEvazbPM7XuS2LUEANl2Qiea/ZK7TxAFAODXUeAYfYtc9rkkalzi7pxPjBV3t7jd+IhMX5TEfWcAAJL5aUncupQgAAC/jgXx+Iz2583FretnZmZ4ogTGgm/YUOpEravN7EJJPDkIAPDUrEd6b9xufZAkAABPR4FjnBaE0imFqeC7nU7zUNLAKEuSzQd2wqmbZXoTaQAAno2Zf6wTNV9HEgCAX6LAMWZcern3dGen3TiBNDCKktnZ45Tm7pL0StIAAOzAhEtf7nQahxAFAECiwDGuFrvZ2qTd+hBRYJTEcfN9CtIbJT2PNAAAu2Dae/Zld58iCgAABY7xNSHzT3TazUvdfZI4MMzcPZdEzYvM9Y+SmKQCAHbHsk7c+gtiAABQ4Bj3haPpnCRurWk2m3XSwDBqNpv1JG7dIOkC0gAA7KE/nYuaJxMDAGQbBY4MMOn1U5Nat6XdfilpYJjMtVovmprQbSadRBoAgL2Z06byyxqNRo0oACDDgwERZITr8J717ojjmTcSBobBXNQ8Oc35OkkvIQ0AwN6z5+cn7CJyAIDsosCRLWXz4NokanIpAAYqjpvnpNIaSTXSAAD0i5vOmYua7AoEgIyiwJE9OUkXJVHzCvdHCsSBBZ14uk/FUfPT5rpU0gSJAAD6zFLTP7h7nigAIHsocGTXOzpR+dtRFO1PFFgIs7Oz+3Ti1jdMei9pAADmjevwubj1RwQBANlDgSPLTCsCde+K4+YxhIH5FEUzR00E6Z2SXksaAID55qYPx3H8fJIAgGyhwIEDzHVz0m6+hSgwH+K4daop+K6kQ0gDALAgXCX5tv9OEACQLRQ4IElFma5KouZF7k6bQH/mlu6WRM0LzP06kyokAgBYSCatjKLG0SQBANnBYhZPmwfogk7SutL9sZA4sDfcPd+Jm5dLuoh+BgAwqHluYPb/EgMAZGtRu1uSqOnENvZ+ZDk/vVCoP0wU2F1xvHGJ+eRXJC0jjfEWlmpGCsCucfdcq9WqTE5O5nO5bYVu1ytBEExJ6QFKdYhMh8qDQ0x+qEuHSeJJZ32KPpW/olSq/2gh3ox5MuMEQD8x2H6CxzTi2RztPbuz0268tVCu30Ic2OUOO2kdqzS9RhI3dgOApzGznqTGLq3I3XNRNPOSIMgdZ+6vdukYk72UFPcs+u27OLjXGABkodPf7QUMFacs2WLy9xdK9cuIAjvtG9qtt8v8M+JXx8zglzlg4XQ6jUO8Z2dKepukpSSyWzxVenSpNH3vvI+FzJMZJwD6iYH2E1wbjx1Z5LLPJlHjEnfPEQeeddbobnG78RGZf1EUNwBgXhQK9Z+HpdrfhqXasmBCh5n0ZzI9SDK7xEzBHxIDAGSgw9/dP6DilNmGckNna/r26enpFmngl3zDhlKnsOjzMj+dNLKHX+aAAffB7kGSNE41D/5c0nIS2aEtqSZeUCqVfjGfb8I8mXECoJ8YbD/BDg7s2iRKekN+Klg3Nzv7YtKAJM3NNV84Fy66g+IGAAyGmaXF4vT1Yal2bCC9XmbfI5XntChn3fcRAwCMNwoc2B1HpEF6Wydqvo4osq0zO/PqtKvbXX4kaQDA4OVLtW8VwsrxJn+PpI0k8kzu+oC7T5IEAIwvChzYXdMu3ZBEjfOJIpviuHmOB8GNkvYjDQAYHmbmhVL9c1u2+RGSf1xSSir/wQFJ0vwtYgCA8UWBA3tiQrKPddrNS/klJDvcfSKJGpeY61JJnHcAGFL1er0Zlurnp7JTJM2QyFMstfeQAgCMLwoc2PMFr+mcTjJ7Y7vd5pf8MddqtaY7cesGyc4jDQAYDaVS9RsKer8h6U7S2M50arvd3pcgAGA8UeDA3nF/dU6929vtzdyLYUzNzc4eMZnz2yRx7xUAGDFhuPiRQjF5raQvkIYkaSqn9GxiAIDxRIEDe8/0wlyQuyOOGzxNY8xEUesNHqTrJPH0HAAY1WHaliSFYvVdZvoH0pBk/i5CAIDxRIED/eEqmdu1cbvxEcIYD0nUOD+Qf82lKmkAwIiv6c08H1Y/KNMnSUNLO52Zg4kBAMYPBQ70ef5kFyZR84vujxSIYzS5+6I4an1Wso9JypEIAIzNIO2FsPohc30q61F4N8euUwAYxw5+d/8giZpObNj5Kll3eDD55mKx+DhhjI52u71vznr/LOl40sDOhKWakQIwgkO0e9CJm1+V7L9kOIYbw1Kt7/eWGsN58qNyrZdsgwX+mGS/SOW/sFSbA1MrDWy21+u2cznNbt2ai375R9VqddbMenzbACw0ChyYz+b1mJvOKBar3L19BERR4+hA9lVJLyAN7AoKHMDoajab9alJ3SnXYRmNoNtNg/0rlcrmfr7oiM6TE0n3m+tuN/83Nz2YpumDpdL0g2Y2x7cFwEitQDPScWNw5kz2e4VS9fNEMcQzm3bzTJkukxSSBnYVBQ5gtEXRzFGBgtsz2/e7nR2Wq1f2dTwd/nnyNkk/lOx2ud8eePCjReXyT9ltAWBcTBAB5lne5ZcnUfNlhWL1w2aWEskQze3crRO3/lTSX4t78gBAppRK0/d0osYHXfbZTI6B5idJunLMD7Mr93UWBN9Qmn4nX4ruNDuoQ+sHMK7YwYEFbGy+Jr8lfYctXjxLGkMwsfMnip0k/zm53kIa2BPs4ADGQydqrnHplAwe+sNhqXZIP19wSObJG831VZdu2NL1b9fr9SatHEB21pyj2XFjdN1jOT+9UKj/nCgGJ0k2HaB04quSjiEN7CkKHMB4mGu1Dk9zfq+kfNaOPejZi/LV6k/7Nr4Obp68WfJ/cfOrwrB+g5lto2UDyCK2pGOhHeU9u7PTbryWKAYjSWZXKJ24SxQ3AACS8tXqT83soiwee2/CTxrhj79V8q/J9bZCsbp/WKq/u1icvp7iBoAso8CBQdjHzb7RiRvvJYqF1Yla71Ca3ihpf9IAAPxSPqxcLNODWTtuc//PI/ixH5D8D7tpcEBYqr8xLNeuMrMurRgAKHBgcKbc7dOddvNSd+dmt/PM3XNJ1LzI5Vcog1uQAQA7WeibzZn8rzN45MtH56P6rdt3axwZluqXVCqVTbRcAPi1rnJ3/4B7cKDvi29p7dZtfhY3wZqnfDduLHcKU1dI/kbSQD9xDw5gzMYL98lO3PqppIOzdNjdNNivX8WCeZgn9yR9KVV6Uak0fS+tFAB2jB0cGDiTTl40aeu2zM6+hDT6a67VOjwpTNxBcQMAsNPx2Gyb5P87a4edy/myIfxcqUxX5dLgZWGp9k6KGwCwayhwYFi8qBekt81FzZOIoj/moubr05yvM9lLSQMAsCsKxS3/KClblz6k6XBdpuK6NpcGR4bF2tsWVSo/oVUCwK6jwIFhUk+lG5KoeQFR7J04bp6TSmsk1UkDALCrzPaPJX0mU8csO2pIPsoPzf2EsFx7M4UNANgzFDgwbHKSLuq0m//o7lPEsXvcfSKJG58w16WSJkkEALC7UqVXZOqATS8b8CfYaPL3ForVZYVy/Tu0QADYmy59N3GTUSxc6/RbU598S6lU+gVh7Nzs7OziiSC9StIJpIGFwE1GgfHViZr3uPTyjBxuWijOVbbvXtkruz1PNl3VS3MfLJfLG4cljPt15NTs4ugw66YHuWmJyQ6WaYlciyXVJNVNqvmT//+XP5aWxA8rAPbAsc31fZ1P8nhODC+34wJ174rj5unFYu2HBPLcomjm5YHSr0o6lDQAAHs9BEtXSLooI4cbJEn+JZJ+sIDv+e/m/v5CqX7TIA/8rvoLD+6l3eUuvVJmL5H8yLbah1pPEzJ76pdQf0b7AIChRIEDw+5Ak25Oksa7w7B+LXE8Uxy3Tgncv+BSlTQAAP1Z8ve+oDT3P7UHu31H8nDdX6YFK3D4PxWKWz7Qjx0ju2vd9MFHeuonu+w1ci3venf/56xiAMAIosCB4ecqye3quN34y7BU+wszYwTeLoka58v9fzn30wEA9FEYLn4kiZr3SjoqC8ebug5fgLfZ4Ja+r1icvn6hjusmHZIPa703uILTJD85TXXAr2pWXGQIYAxR4MCoMDO7sBO3XuL+2HvNliRZDsPdFyXx7GrJ303TAADM09B7o+SZKHCYze8lnib9y7Y0+J1KpTbvj+C9X0dORbXZU1LXmWbpG11WZncGgKygwIFRc1YnDo/odGbOKBSm12cxgDjeuKQTt6416VU0BwDAfHHr3Wge/GE2DnbeChwu6W/yxeqHC2bpfB7CHZUDX2S54Hfb3l4p2X7GDg0AGUSBA6PoFd6zO5KkdUYYVtdl6cDjuPEKc/uKpINpBgCA+RQmve90CsE2ZeHpGPOzg2NzKntnqVT9xnx9bJdsXf0Fp7j7H0s6wZ0LTwBkG9ftY1RnIs9X6rd0okZmLtFI2s2zzO17orgBAFiIkXbffdvyBX2yyCCPdn/3Rwp9ezXpXsv5MfNV3PgXHb7ojtoL3vv92sH3ufvXJJ0o7qoBABQ4MNIWuexzSdS4xN3Hti27u8Xtxkdk+qKkkNMOAFi4maLfmZEjtS2zlQP6Mm5Laztb098sFOoP9/tD3qVjJr9fO/jd07WtP5b805JeSiMFgKcNW0SAMZiTnDcXt66fmZkZu8ek+oYNpU7UutrMLhS/zAAAFnockt2fmWO13v57PyXxvwuL1VOmp6db/T0PCu6oHfzbvdrGf3Ppc5JeSOsEgGeiwLHXg6HOlbSVJAY9AdMphangu51O89BxOaYk2XxgJ5y6WaY3cYYHriu384kBQNZYL7g3O3O64Hl7+xphsf4HZtbr5+e6vXLg8u9XD7pV0uUuHUarBIDnRoFjLxWLtdVKgxMlPUEaA56YSC/3nu7stBsnjPqxJLOzxynN3SXplZzZgdtk7ieH5erHiQJA1hS2bbtPGXnGqMueN0yf547pAw68o3bw5RYEt8vsWFojAOwcT1Hpg7BSuTVJNi1VOnGNeHTnoC12s7VJu/VHYbn6d6N4AHHcfJ88/XtJU5zOgbvbcn7GfFxHDQCjwBYvnk2i5iPKxA2u06EocNylYya3VTf+sVJdKKkwwI/SlPSQpJ/J/Gfu9ojMNge9dFMvCDZMure2edrsWeDdqc62EzZujPjGABg0Chx9Eob7POruxyfx7KdM/h4SGXC7Nv9Ep918eb5U/ZCZbRuFD+3uuU7c+h9yXcApHApXForJ75otSYgCQJa59IBloMARDMEOjtsrBy7vBptWm3TUAr5tKunfJP2r3H7k8rsn0+7dS9uPbaL1Axi9hSD6xsy2SFoZx83bzfX35DvgCZnpnCRuHdpsNs+q1WqNYf6szWaznsStL5t0Emdu4HqS/jws1S4mCgCQJHssC1epuKkyqPe+SYfkC7X0f0o6T5r3J8P15H6nAvuuS9/tpvreb7bWN2jnAMYBC/B5UCzWVnfajQfc7CpJ+5LIAKdk0uunJrVuS7t9+qJy+cfD+BnnWq0XpTm/TtJLOGMDNxNIZ+dLtbVEAQC/HEv98WwcqZcH8a7rpg8+Mk17V0h29Dy+TezSTea6PpgKrnvVxp9z7zgAY4kCxzwplOs3zzWbK3xCX3HpZSQyyPmKDu9Z7444nnlnsTh9/TB9tLmoeXIq/5KkGidq4B7IpcEZiyqVnxAFADx9HLXHZVm4z6gt6A4Ol4LvV1/wx576X0m2aB7eYtala839C53WIzeeIHVpzADGHU9RmUf5Wu3BfLJ1hUxXk8bAlc2Da5OoOTT3t4jj5jmptEYUNwY/pZWvmduaLqe4AQDPuhR/LCtzhYV6o3XTSw76fu3gb8r8b13qZ3EjlbRGrjPTUrr/iub69xzbemQtxQ0AWcEOjvleOO23X+TuZ3bi1p9K+mtRVBqknKSLkqh5VKHYfp/ZQZ2BTBPdp5K49Q/mei+nZPCzdkl/ky/WPlwoWUocAPBsPWXwuLLQRS7QPTjuqB781jTVpZKm+/iyDUn/ZG4fW956+GeSpBZNF0D2UOBYiPHSzCVdHMet+wL3K1yqkspAvaMTlQ+NoujNpVJpQa9BnZ2d3acTt64y6bWchoFPZCOl/jthuX4NYQDAc+tZt5XLwu8z7uF8vvz39nlxeaLb+aSkd/XxZe836W82N6e+dIp+uoXWCiDr2E2wgIrF6hpLg+WS2AY/+MXtikDdu+K4ecxCvWUUzRw1EaR3iuLGMJz/B3tpuoLiBgDs3GSam8vI4DA5X6/8/fIBR0x0O7erT8UNk/7VpN9Z31x/9PLm+sspbgDAkyhwLLB8pfJAYUtvuWTXk8bAHWCum5N28y3z/UZx3DrVFHxX0iHEPlgurd26TcvK5en7SAMAdi6d7GakwDE/O5vvqL7gLZ7L3SXpyD683A/kOnl5c/0rlzfXX/62Jx9tDgDYjgLHANjixbOFYuVNki4mjYErynRVEjUvcu//c+fd3ZKoeYG5X2dShbgH/N1zrQ6L1VNrtVqDNABg13S7k1kpcPR1B8eXpdzttYM/IvOrtPc3MP25XOcub65/1bGt9d+kVQLAs6PAMaiFllkvLNVWye1sSQmJDPZ0SLqgk7SudH+sb9ffunu+Ezcvl3QR37WBmzP5ykK5dq6ZcSd5ANgN5bk5dnDspltK++97UO3gb5h04fZ5xp5qunT+RHPfI45trV9tTz4lBQCwg4XdbkmiphPbU8JSzfb2NaKo8RuB7Fpx+cIw+JHl/PRCof7w3rxIHG9cYj75FUnLiHTgHlVgbw7D6rq9fSH6v/73fwCGn7tPdOLWtgwcahqWarm9fZHbqy94pZlfvZfzOpf0eW3L/ddj45/9glYIALuGX5WHQKlUv7ubBssk3UQaA3e09+zOTrtx/B4vgpPWseYTd4nixuCZ35pqYmk/ihsAAOzM7dUXvC8wv017V9y41wI77tjm+ndT3ACA3Zz+7/bijV8w/4N+/oK5/ReSv5J0AckO3BaTv79Qql+2W9+PduvtMv+MpAIRDrhzc63Ol6p/YGZb+/Wa9H/z1/8BGF6+YUOpE061szD2h6Vafm9e4I7awXszTnTN9NHNjakLh/mpKO6PFLZsKT8/3Ro8X5buL9kSCzTtrqrLa2aqylWVVNv+Jzn50+5DZqrqqR9Zi5Km+JYBzCf7ZYJIh2hB9uS9AVbFcfMhc32CDn+gFrnss0nUeEWhWPtjM+vteLB3S6LmhTK/kOgGriu3PymUqx8nCgDYe+18Pj+RjVs/DOweTS7dF7ivXN585K5hCML9sbDTKb7M0vQ/pa7DzOwwSYdLOqwTa7EkKUh/9el9e1nHth/MMye5fI8ALAwKHEOoWKytTmZn71eQ/rOk/UlkkOy8ubh1xMzMzNunp6dbzzoJ2LCh1IlmP29mp5PXwG0y97cVyjUu9wKAfk0WJ7blleaycKiDuM+IS/pEozn1p4PateHu+bmo+So3Wy7pN1z+G53YXix5zmUyihMARmnMIoLhFFYqtybJpqVKJ66R9CoSGRyX3pCfCtbNzc6elq9UHnj6f5uba75wrmvXSX4kSQ3c3ZbzM/b2BrEAgP8o2DaRT3OZuEJvoXdwbDLTyuWN9V9b0HmNe35L3Hp1z/14M3tNJ269Sma/ujTH2G4BYIRR4BhiYbjPo+5+fBLPfsrk7yGRgToiDdLbOlHzbYVS7duS1JmdeXXa1dWS70c8A3dloZj8rtkSHrkMAH22Lejlc5m4L70v4A4O/053Qu989aZHHluId2u1WtOTgb9O5m9M4tbpJlWMrRkAxhAFjiFnZlskrUyixn2SXSwpRyoDM+3S1+N283xJctMlkiaJZaB6kl8QluofJQoAmKfJoqvmWVgLmy1Mkdy0eqKx34eO1Q/mtaDiGzaU5sLJt7js3ZK/5sk5JPszAIz5mEUEoyEs1T/aaTfucrOrJO1LIgMzaaZPEsNQmAmks/Ol+lqiAIB5XChbsCQbB6rZ+Xx5k7a4/APHNh75rLR+3t4njpvHBKnO6ZjOllSmBQPIEgocI6RQrt8812yu8Al9xaWXkQgy7IFcGpyxqFL5CVEAwDwzf35GHoMxn4/CfVTuZxzbmp+npLj7orm4eVYqXWCulzrbNABkVEAEoyVfqz2YT7aukOlq0kAm59nyNXNb0+UUNwBgwXre52fjOH2+dnDcP2ET/3n5PBQ32u32vknUvKATzz7kss+Z7KW0VwBZRoFjFKcZ++0XFcLqmZJWSdl4MD2gJx+ld3G+WDvtuR7ZCwCYj843KwUOm48dHDctUvDqpY2H+npNyuzs7D5J1PpoznrrJV0k+RJaKgBwicroDsFmLuniOG7dF7hf4VKVVDC+DV6RUv+dsFy/hjAAYKF5Jgoc5upr8dzdv1BpVVYeqfu39u81nyh24vyHTOmfMfcDgGeiwDHiisXqmrnZ2eUepF+R9BISwfjNOPVgL03PKJen7yMMABhEN6wXZ+E4U/kv+hja6mObj3zA+rTT1t0nOtHs73di/2+S9nGaJQA8Ky5RGQP5SuWBwpbecsmuJw2ME5fWbt2mZRQ3AGAwZmZmqpIOysbRWn8KHG6fXN5Y//5+FTfiuHlMJ27dJvNLJO1DqwSA50aBY1yG5MWLZwvFypskXUwaGIs27VodFqun1mq1BmkAwGDkJyZepow8QsX6sIPD3f762NbDH7Qn7xu1V5rNZj2JGpeYa52kZbRGANg5ChzjNDCb9cJSbZXczpaUkAhG1JzJVxbKtXPNrEscADA4nktflqGDfWJvX2JF6+E/78dH6UStd0xN6P9Idh7zdQDYdXSYYygsV69M5cdJ+jlpYMQ8qsBeUyjVLyMKABg8k2emwBG4bxj0Z5iZmakmUeOfXH6FpMW0QADYzb6cCMZTqVS/u5sGyyTdRBoYjVm035pqYmkYVtcRBgAMidSWZuRIfVFl9tFBfoC5qHlSfiq4T7J30fAAYM9Q4BhjlUplU6FYPVnclwNDzlyrC2HtxFKp9ARpAMCQrPg3bizLlJEChz9hdlBnIO/sviiJGx9PpbWSDqTlAcCe4zGx475wfPIeBqviuPmQuT4haYpUMES6cvuTQrn6caIAgOGShLnXmmdkruj62UAyTjYf2IlaV8ns2HGMNSzVjG8S8Gvf+6jJk57nETs4MqJYrK1WGpwoiV/IMSw2mfvJIcUNABhK5rkTs3OwC1/g6LQbr1Gau0umY2ltANAfFDgyJKxUblXQXSqJexxg0O62nC8tlOvcIwYAhpZnpsDhC7iDw90tiRrnu9m3JD2PdgYA/UOBI2PCcJ9HC8Xq8S67jDQwIFcWislxhUL9YaIAgOGUJJsPkvTyzEyITT9diPdxf6TQSVpfkuxj4lJxAOh/f04E2WNmW4ql6ko3nSupSyJYID1Jq8JS7WyzJQlxAMAQS3PvkJSZ+yekZvfN93vMzs4u7sSVb8h1Jg0MAOYHBY4MKxZrq839JEkbSQPzbCaQTglLNZ7oAwAjwKR3Zuhwe2GY/Nt8vsFcs3nYRJDeJvlv0roAYP5Q4Mi4Qrl+c9DVCpPuIw3MkwdyaXBcvlRbSxQAMPyiqHG0Z+jyFEkPzufOwiSZXZFO6HZJR9C6AGB+UeCA8rXag/lk6wqZriYN9JPJ18xtTZcvqlR+QhoAMCqTQ3tnpg7Y5u9HnqTdfIvS9CZJ+9KyAGAhxjBAku23X1QIq2dKWiUpJRHsJZd0cb5YO216erpFHAAwIp23P1GUtDJTcyDZPfPxuknUOlumKyUtomUBwMKgwIGnBngzD0u1i93sNJNYlGJPZ4qR3N8almqrzIxiGQCMkE686Pck7ZOlY+65vt/v14zj5u9J/nnxpBQAWFAUOPAMxWJ1jaXBcklcVoDdY3qwl6YrwnL9GsIAgNHi7pOS/VHWDjtN7c5+vmDcbv2+uS5lng0AC4+OF88qX6k8UNjSWy7Z9aSBXZohSmu3btOycnmaG9YCwAiaS1rvlnRwxg773yuVyuZ+vVgSNS8w879Xhh6xCwDDhAIHnpMtXjxbKFbeJIlHe2LHbcW1OixWT63Vag3SAIDR4+55l/4sc8ct6/flKRfRmgBgcChwYMcLV7NeWKqtktvZkhISwa+ZM/nKQrl2rpl1iQMARlMSNVfJdVj2Jjp+G2cfAMYHBQ7skrBcvTKVHyfp56SB7R5VYK8plOqXEQUAjK65VutwM7sgi8ee69q3aQEAMD4ocGCXlUr1u7tpsEzSTaSRcea3pppYGobVdYQBAKPNc36JpHwGD/3hfLX6U1oAAIwPChzYLZVKZVOhWD1Z3Jcjs8y1uhDWTiyVSk+QBgCMtk7UWOnSKRkdz75JCwCA8UKBA7s/ITDrhqXaKjedK2kriWRGV27nb7/fBucdAEZcFM0c5bK/y+rxu/QtWgEAjBcKHNhjxWJttdLgREn8kj/+Npn7yWG5+nGiAIDR12w264EH10oKMxpBt+sBBQ4AGDMUOLBXwkrlVgXdpZK4F8P4uttyvrRQrnPvFQAYA+4eTE345TK9MMMx3FKpVDbTGgBgvFDgwF4Lw30eLRSrx7vsMtIYO1cWislxhUL9YaIAgNHn7jYXtf5esv+S7RzsGloDAIwfChzoCzPbUixVV26/L0eXREZeT9KqsFQ722xJQhwAMA6LerdO0vo7N70/61FYrnsdLQIAxg8FDvRVsVhbbe4nSdpIGiNrJpBOCUs1npQDAOOyon9y58Yn5fp90tBdYbj4EWIAgPFDgQN9VyjXbw66WmHSfaQxch7IpcFx+VJtLVEAwHhwfyzsxK0vsHPjl4HY5wkBAMYTBQ7Mi3yt9mA+2bpCpqtJYzSYfM3c1nT5okrlJ6QBAOOh05k5uBOHt0h6O2lIkrb2FHyRGABgPFHgwPwtmPfbLyqE1TMlrZKUksjQckkX54u106anp1vEAQDjIYpab/Be8K+SjiGNX414a8rlMpfRAsCYosCBeWVmHpZqF7vZaSaxeB66E6RI7m8NS7VVZkYRCgDGQLPZrCdR45JAvkbSNIk8xQO/jBQAYHxR4MCCKBaraywNlkvi8odhYXqwl6YrwnKdR+UBwDgs3t2tEzVWTk3o3yU7j3neMzwahrWvEwMAjC8GPiyYfKXyQGFLb7lk15PGgCfB0tqt27SsXJ7mRrAAMAbmoubrO0nzuy77jKR9SOSZzPRJM9tGEgAwvihwYGEnF4sXzxaKlTdJ4hGkgzoHrtVhsXpqrVZrkAYAjC53D+J45o1J1LwjldbK7ThSeU5bumnu/yMGABhvE0SABV9gm/UkrUrarbtl/mlJIaksiDmTf6BQrl9GFAAwwp15s3mYT+htnaT1u+bBYSSycy59vlwubyAJABhvFDgwMGG5emUUNX4SyK6VdAiJzKtHFdibC2FtHVEAwOiZm2u+MO3qTElnpr98KoqTyy7y1NOPEQMAjD8KHBioUql+9+zs7LKJIP2ypBNIZB6Y35r65FtLYekJwgCAEViNu09E0cyLgyB3nLm/2qVj0q5eSjJ7Og7q6nKJe04BQBZQ4MDAVSqVTe5+cidu/ZWkC0ikj3M61+p8sfYHZraVNABgcNw912q1KpOT2wq53GS+1/OqWTClXnqATIfIdKhch5iCQztx67Cc5fJP7tAwGfHtVfSpp/+dGAAgGyhwYDgW4mZdSaviuPmQuT4haYpU9kpXbn9SKFc/ThQYdknUZKM9xl4nbmlqQpJPKu1uL1u4S7a9fOG//B++Dv2dYOiaUnH6HoIAgGzgKSoYKsVibbXS4ERJXE6x5zaZ+8khxQ0AQLb1Uk//khgAIDsocGDohJXKrQq6SyVxQ8zdd7flfGmhXL+JKAAAWWauz5RK7N4AgCyhwIGhFIb7PFooVo932WWkscuuLBST4wqF+sNEAQDIuHYaTF5IDACQLRQ4MLTMbEuxVF3ppnMldUnkOfUkrQpLtbPNliTEAQCA/kexWHycGAAgWyhwYOgVi7XV5n6SpI2k8QwzgXRKWKpdTBQAAEiS/k+hWL2EGAAgeyhwYCQUyvWbg65WmMRz7J/yQC4NjsuXamuJAgAASZKb9AEzmyMKAMgeChwYGfla7cF8snWFTFdnPQuTr5nbmi5fVKn8hJYBAMD28dH0qUKp9m2SAIBsosCB0Zq47LdfVAirZ0paJSnNYAQu6eJ8sXba9PR0ixYBAMCvZgmPzW31D5MDAGQXBQ6M3vTFzMNS7WI3O82k7CzyTZHc3xqWaqvMLKUlAADwK2kgf0+9Xm8SBQBkFwUOjKxisbrG0mC5pPG/TMP0YC9NV4Tl+jWceQAA/iOXLs6Xat8kCQDINgocGGn5SuWBwpbecsmuH+NJ29qt27SsXJ7mBqsAADzTurBYvZAYAAAUODDybPHi2UKx8iZJY/eoVHOtDovVU2u1WoMzDQDAM8xYzs8ys21EAQCgwIHxKASY9cJSbZXczpaUjMEhzZl8ZaFcO9fMupxhAACeoWvS2wqF+s+JAgAgUeDAmAnL1StT+XGSRnmy86gCe02hVL+MMwoAwLNz13k8EhYA8HQUODB2SqX63d00WCbpppH78Oa3pppYGobVdZxJAACea7zUJ4vl2j8QBADg6ShwYCxVKpVNhWL1ZI3QfTnMtboQ1k4slUpPcAYBAHgObtcVwur5BAEA+HUUODC2zKwblmqr3HSupK1D/FG7cjt/+/02tnLmAAB4TjcWSpWzuD8VAODZUODA2CsWa6uVBidKGsadEZvM/eSwXP04ZwoAgB1aV+hsO8PM5ogCAPBsKHAgE8JK5VYF3aWShuneFndbzpcWyvWbOEMAAOzQuq1dvcH23bdNFACA50KBA5kRhvs8WihWj3fZZUPwca4sFJPjCoX6w5wZAAB26JbClt7ra7VagygAADtCgQOZYmZbiqXqyu335RjE9bs9SavCUu1ssyUJZwQAgB2M29LXC8X2G2zx4lnSAADsDAUOZFKxWFtt7idJ2riAbzsTSKeEpdrFnAEAAHbMpU/ni9XTzQ7qkAYAYFdQ4EBmFcr1m4OuVph03wK83QO5NDguX6qtJXkAAHbI3f0viqXa+8xsG3EAAHYVBQ5kWr5WezCfbF0h09Xz9R4mXzO3NV2+qFL5CYkDALDDQTNy8zOK5fpHCAMAsLsocIC51H77RYWweqakVZLSPr60S7o4X6ydNj093SJpAAB2NGj6j3tpuqJYrF9HGgCAPUGBA5BkZh6Wahe72Wkm7X0xwhTJ/a1hqbbKzFISBgBgR/yfwmJnWbk8fR9ZAAD2FAUO4GmKxeoaS4Plkvb8chLTg700XRGW69eQKAAAO7RZrreFpfq7eboYAGBvUeAAfk2+UnmgsKW3XLLrd/dvXVq7dZv4BQoAgJ2Pml9z23ZUWK5dRRYAgH6gwAE8C1u8eLZQrLxJ0i4/0tVcq8Ni9dRardYgQQAAntMGuc4KS/U3Fov7PkYcAIB+ocABPAcz64Wl2iq5nS1pR9tm50y+slCunWtmXZIDAOBZdc21upsGR4bl2peJAwDQbxQ4gJ0Iy9UrU/lxkn7+LP/5UQX2mkKpfhlJAQDwnL7d8/QVhXLt3Eqlsok4AADzgQIHsAtKpfrd3TRYJummX/1L81tTTSwNw+o6EgIA4Fl9P5D+n7BUO4n7UwEA5tsEEQC7plKpbHL3N8xFrY9LUr5YO8/MtpIMAADPcI9cf1UoVf/ZzJw4AAALgQIHsBu2FzTeTxIAADyDu/Rtmf2vMKzcQGEDALDQKHAAAABgb2yR/Mup/G9Lpel7iQMAMCgUOAAAALAn7pbbZ7tuV1Qqlc3EAQAYNAocAAAA2FVPyPwqlz5bLNb/lTgAAMOEAgcAAAB2ZL3kXwlk1y8qVr9jZl0iAQAMIwocAAAAeLo5SbdK+qabr2WnBgBgVFDgAAAAyLZY0p0u3e6ym4vF2VvMDuoQCwBg1FDgAAAAyApTJNePzXVPKv3QzW8vFmv3cdkJAGAcUOAAAAAYL9tkWu+unwWuh2T6WWr+k9w2u3dRtfozM0uJCAAwjihwAAAADJdUUutp/7x1+86LpqRZySLJ2zKfMQUbU/njUvqEWW6D1H2sUJh+nB0ZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWBj/P93XUZv7H38oAAAAAElFTkSuQmCC" alt="Miami Drapery Hardware"/>
+      <div>
+        <p class="portal-auth-eyebrow">Client Portal</p>
+        <h1>Miami Drapery Hardware</h1>
+        <p>Sign in to access the estimate / order form and your saved documents.</p>
+      </div>
+    </div>
+    <div class="portal-auth-tabs">
+      <button class="portal-auth-tab active" id="portalLoginTab" type="button">Sign In</button>
+      <button class="portal-auth-tab" id="portalRegisterTab" type="button">Register</button>
+    </div>
+    <form class="portal-auth-form" id="portalLoginForm">
+      <label><span>Username</span><input id="portalLoginUsername" autocomplete="username" required placeholder="Enter Username"/></label>
+      <label><span>Password</span><input id="portalLoginPassword" type="password" autocomplete="current-password" required placeholder="Enter Password"/></label>
+      <button class="portal-auth-submit" type="submit">Sign In</button>
+    </form>
+    <form class="portal-auth-form" id="portalRegisterForm" hidden>
+      <div class="portal-auth-grid">
+        <label><span>Username</span><input id="portalRegisterUsername" autocomplete="username" minlength="3" maxlength="30" required placeholder="Create Username"/></label>
+        <label><span>Company Name</span><input id="portalRegisterCompany" autocomplete="organization" required placeholder="Company Name"/></label>
+      </div>
+      <label><span>Email</span><input id="portalRegisterEmail" type="email" autocomplete="email" required placeholder="Email Address"/></label>
+      <div class="portal-auth-grid">
+        <label><span>Password</span><input id="portalRegisterPassword" type="password" autocomplete="new-password" minlength="8" required placeholder="Minimum 8 Characters"/></label>
+        <label><span>Confirm Password</span><input id="portalRegisterConfirm" type="password" autocomplete="new-password" minlength="8" required placeholder="Repeat Password"/></label>
+      </div>
+      <button class="portal-auth-submit" type="submit">Create Account</button>
+    </form>
+    <div class="portal-auth-message" id="portalAuthMessage" hidden></div>
+    <p class="portal-auth-note">Your estimates and orders are private to your account.</p>
+  </div>
+</div>
+
+<div class="portal-user-bar" id="portalUserBar" hidden>
+  <div class="portal-user-inner">
+    <div class="portal-user-identity">
+      <span class="portal-user-avatar" id="portalUserAvatar">M</span>
+      <div><strong id="portalUserName">Client</strong><span id="portalUserCompany"></span></div>
+    </div>
+    <div class="portal-user-actions">
+      <button type="button" class="portal-bar-button" id="portalDashboardButton">My Estimates / Orders</button>
+      <button type="button" class="portal-bar-button admin" id="portalAdminButton" hidden>Admin Panel</button>
+      <button type="button" class="portal-bar-button subtle" id="portalNewDocumentButton">New Form</button>
+      <button type="button" class="portal-bar-button subtle" id="portalSignOutButton">Sign Out</button>
+    </div>
+  </div>
+</div>
+
+<div class="portal-modal" id="portalDashboardModal" hidden>
+  <div class="portal-modal-card">
+    <div class="portal-modal-head">
+      <div><p class="portal-modal-eyebrow">Client Dashboard</p><h2>My Estimates / Orders</h2></div>
+      <button type="button" class="portal-modal-close" data-close-portal-modal="portalDashboardModal">×</button>
+    </div>
+    <div class="portal-modal-toolbar">
+      <button type="button" class="portal-primary-button" id="portalCreateDocumentButton">+ Create New</button>
+      <input id="portalDocumentSearch" type="search" placeholder="Search sidemark, company, or type"/>
+    </div>
+    <div class="portal-document-list" id="portalDocumentList"></div>
+  </div>
+</div>
+
+<div class="portal-modal" id="portalAdminModal" hidden>
+  <div class="portal-modal-card portal-admin-card">
+    <div class="portal-modal-head">
+      <div><p class="portal-modal-eyebrow">MDH Administration</p><h2>Client Accounts &amp; Documents</h2></div>
+      <button type="button" class="portal-modal-close" data-close-portal-modal="portalAdminModal">×</button>
+    </div>
+    <div class="portal-admin-stats" id="portalAdminStats"></div>
+    <div class="portal-admin-section">
+      <div class="portal-admin-section-head"><h3>Client Accounts</h3><input id="portalAdminAccountSearch" type="search" placeholder="Search Accounts"/></div>
+      <div class="portal-table-wrap"><table class="portal-table">
+        <thead><tr><th>Username</th><th>Email</th><th>Company</th><th>Role</th><th>Documents</th><th>Registered</th><th>Last Active</th></tr></thead>
+        <tbody id="portalAdminAccounts"></tbody>
+      </table></div>
+    </div>
+    <div class="portal-admin-section">
+      <div class="portal-admin-section-head"><h3>All Estimates / Orders</h3><input id="portalAdminDocumentSearch" type="search" placeholder="Search Documents"/></div>
+      <div class="portal-table-wrap"><table class="portal-table">
+        <thead><tr><th>Date</th><th>Client</th><th>Company</th><th>Sidemark</th><th>Type</th><th>Status</th><th></th></tr></thead>
+        <tbody id="portalAdminDocuments"></tbody>
+      </table></div>
+    </div>
+  </div>
+</div>
+
 <div aria-live="polite" class="toast" id="toast" role="status"></div>
 <main class="shell">
 <form class="page-card" id="orderForm" novalidate="">
@@ -3256,6 +3450,7 @@
 </div>
 </article>
 </template>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://sammys1836.github.io/MDH/assets/fabricplus_catalog.js?v=20261001"></script>
 <script>
     (() => {
@@ -9960,6 +10155,596 @@
       applyTheme(themePreference, false);
       applyLanguage(currentLanguage, false);
       restoreDraft();
+
+
+      const PORTAL_SUPABASE_URL = "https://klmkjvtmxxttrxujtiwe.supabase.co";
+      const PORTAL_SUPABASE_KEY = "sb_publishable_nCB64gQ4vOZuWsJ2QOujuw_gFBkTXpd";
+
+      const portalSupabase = window.supabase.createClient(
+        PORTAL_SUPABASE_URL,
+        PORTAL_SUPABASE_KEY,
+        {
+          auth: {
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: true
+          }
+        }
+      );
+
+      let portalSession = null;
+      let portalProfile = null;
+      let portalCurrentDocumentId = null;
+      let portalDocuments = [];
+      let portalAdminProfiles = [];
+      let portalAdminDocs = [];
+      let portalSaveChain = Promise.resolve();
+
+      const portalLoginForm = document.getElementById("portalLoginForm");
+      const portalRegisterForm = document.getElementById("portalRegisterForm");
+      const portalAuthMessage = document.getElementById("portalAuthMessage");
+      const portalDashboardModal = document.getElementById("portalDashboardModal");
+      const portalAdminModal = document.getElementById("portalAdminModal");
+
+      const portalEscape = (value) =>
+        String(value ?? "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+
+      const portalDate = (value) => {
+        if (!value) return "—";
+        try {
+          return new Intl.DateTimeFormat("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "2-digit"
+          }).format(new Date(value));
+        } catch {
+          return String(value);
+        }
+      };
+
+      const portalMessage = (message, success = false) => {
+        if (!message) {
+          portalAuthMessage.hidden = true;
+          portalAuthMessage.textContent = "";
+          portalAuthMessage.classList.remove("success");
+          return;
+        }
+
+        portalAuthMessage.hidden = false;
+        portalAuthMessage.textContent = message;
+        portalAuthMessage.classList.toggle("success", success);
+      };
+
+      const portalShowAuthTab = (tab) => {
+        const register = tab === "register";
+        portalLoginForm.hidden = register;
+        portalRegisterForm.hidden = !register;
+        document.getElementById("portalLoginTab").classList.toggle("active", !register);
+        document.getElementById("portalRegisterTab").classList.toggle("active", register);
+        portalMessage("");
+      };
+
+      document.getElementById("portalLoginTab")?.addEventListener("click", () => portalShowAuthTab("login"));
+      document.getElementById("portalRegisterTab")?.addEventListener("click", () => portalShowAuthTab("register"));
+
+      const portalFunction = async (name, body) => {
+        const response = await fetch(`${PORTAL_SUPABASE_URL}/functions/v1/${name}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "apikey": PORTAL_SUPABASE_KEY
+          },
+          body: JSON.stringify(body)
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(data.error || "Unable to complete the request.");
+        }
+
+        return data;
+      };
+
+      const portalGetProfile = async (userId) => {
+        const { data, error } = await portalSupabase
+          .from("profiles")
+          .select("id, username, email, company_name, role, is_active, created_at, last_seen_at")
+          .eq("id", userId)
+          .single();
+
+        if (error) throw error;
+        return data;
+      };
+
+      const portalSetSignedOut = () => {
+        portalSession = null;
+        portalProfile = null;
+        portalCurrentDocumentId = null;
+        document.body.classList.remove("portal-auth-pending", "portal-authenticated");
+        document.body.classList.add("portal-signed-out");
+        document.getElementById("portalUserBar").hidden = true;
+        portalDashboardModal.hidden = true;
+        portalAdminModal.hidden = true;
+        portalShowAuthTab("login");
+      };
+
+      const portalSetAuthenticated = async (session) => {
+        portalSession = session;
+        portalProfile = await portalGetProfile(session.user.id);
+
+        if (!portalProfile.is_active) {
+          await portalSupabase.auth.signOut();
+          portalSetSignedOut();
+          portalMessage("This account has been disabled.");
+          return;
+        }
+
+        document.body.classList.remove("portal-auth-pending", "portal-signed-out");
+        document.body.classList.add("portal-authenticated");
+
+        const username = portalProfile.username || "Client";
+        document.getElementById("portalUserBar").hidden = false;
+        document.getElementById("portalUserName").textContent = username;
+        document.getElementById("portalUserCompany").textContent =
+          portalProfile.company_name || portalProfile.email || "";
+        document.getElementById("portalUserAvatar").textContent =
+          username.charAt(0).toUpperCase() || "M";
+        document.getElementById("portalAdminButton").hidden =
+          portalProfile.role !== "admin";
+      };
+
+      portalLoginForm?.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        portalMessage("");
+
+        const button = portalLoginForm.querySelector('button[type="submit"]');
+        button.disabled = true;
+
+        try {
+          const username = document.getElementById("portalLoginUsername").value.trim();
+          const password = document.getElementById("portalLoginPassword").value;
+
+          const login = await portalFunction("username-login", { username, password });
+
+          const { data, error } = await portalSupabase.auth.setSession({
+            access_token: login.access_token,
+            refresh_token: login.refresh_token
+          });
+
+          if (error || !data.session) throw error || new Error("Unable to establish session.");
+          await portalSetAuthenticated(data.session);
+          portalLoginForm.reset();
+        } catch (error) {
+          portalMessage(error.message || "Unable to sign in.");
+        } finally {
+          button.disabled = false;
+        }
+      });
+
+      portalRegisterForm?.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        portalMessage("");
+
+        const button = portalRegisterForm.querySelector('button[type="submit"]');
+        button.disabled = true;
+
+        try {
+          const username = document.getElementById("portalRegisterUsername").value.trim();
+          const company = document.getElementById("portalRegisterCompany").value.trim();
+          const email = document.getElementById("portalRegisterEmail").value.trim();
+          const password = document.getElementById("portalRegisterPassword").value;
+          const confirmPassword = document.getElementById("portalRegisterConfirm").value;
+
+          if (password !== confirmPassword) throw new Error("Passwords do not match.");
+
+          await portalFunction("register-client", {
+            username,
+            email,
+            password,
+            company_name: company
+          });
+
+          portalMessage("Account created. Signing you in…", true);
+
+          const login = await portalFunction("username-login", { username, password });
+          const { data, error } = await portalSupabase.auth.setSession({
+            access_token: login.access_token,
+            refresh_token: login.refresh_token
+          });
+
+          if (error || !data.session) throw error || new Error("Account created, but sign-in failed.");
+          await portalSetAuthenticated(data.session);
+
+          if (!companyName.value.trim()) companyName.value = toProperCase(company);
+          portalRegisterForm.reset();
+        } catch (error) {
+          portalMessage(error.message || "Unable to create account.");
+        } finally {
+          button.disabled = false;
+        }
+      });
+
+      document.getElementById("portalSignOutButton")?.addEventListener("click", async () => {
+        await portalSupabase.auth.signOut();
+        portalSetSignedOut();
+      });
+
+      const portalNewForm = () => {
+        const preferredCompany =
+          portalProfile?.company_name ||
+          (rememberCompany.checked ? companyName.value.trim() : "");
+
+        [...openingsContainer.querySelectorAll(".opening-card")].forEach((card) => {
+          revokeObjectUrl(curveTemplateObjectUrls, card);
+          curveTemplateFiles.delete(card);
+        });
+
+        form.reset();
+        openingsContainer.innerHTML = "";
+        currentOpeningCard = null;
+        portalCurrentDocumentId = null;
+        localStorage.removeItem(DRAFT_KEY);
+
+        if (preferredCompany) {
+          companyName.value = toProperCase(preferredCompany);
+          rememberCompany.checked = true;
+        }
+
+        createOpening();
+        updateOpeningMeta();
+        statusEl.textContent = tr("New form ready.");
+      };
+
+      document.getElementById("portalNewDocumentButton")?.addEventListener("click", portalNewForm);
+      document.getElementById("portalCreateDocumentButton")?.addEventListener("click", () => {
+        portalDashboardModal.hidden = true;
+        portalNewForm();
+      });
+
+      const portalApplyFormData = (data) => {
+        if (!data) return;
+
+        [...openingsContainer.querySelectorAll(".opening-card")].forEach((card) => {
+          revokeObjectUrl(curveTemplateObjectUrls, card);
+          curveTemplateFiles.delete(card);
+        });
+
+        openingsContainer.innerHTML = "";
+        currentOpeningCard = null;
+
+        companyName.value = toProperCase(data.companyName || "");
+        rememberCompany.checked = Boolean(data.rememberCompany);
+        document.getElementById("sidemark").value = toProperCase(data.sidemark || "");
+        document.getElementById("formType").value = data.formType || "Estimate";
+        document.getElementById("projectNotes").value = data.projectNotes || "";
+
+        (data.openings?.length ? data.openings : [{}]).forEach(createOpening);
+        updateOpeningMeta();
+        saveDraft(false);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      };
+
+      const portalSaveCloud = async (status = "draft", notify = false) => {
+        if (!portalSession?.user || !portalProfile) return null;
+
+        const data = getFormData();
+        const payload = {
+          user_id: portalSession.user.id,
+          document_type: data.formType || "Estimate",
+          company_name: data.companyName || "",
+          sidemark: data.sidemark || "",
+          status,
+          form_data: data
+        };
+
+        let result;
+        if (portalCurrentDocumentId) {
+          result = await portalSupabase
+            .from("documents")
+            .update(payload)
+            .eq("id", portalCurrentDocumentId)
+            .select("id")
+            .single();
+        } else {
+          result = await portalSupabase
+            .from("documents")
+            .insert(payload)
+            .select("id")
+            .single();
+        }
+
+        if (result.error) throw result.error;
+        portalCurrentDocumentId = result.data.id;
+
+        statusEl.textContent =
+          status === "draft"
+            ? tr("Draft saved to your account.")
+            : tr("Saved to your account.");
+
+        if (notify) showToast(status === "draft" ? "Draft saved to account" : "Saved to account");
+        return result.data.id;
+      };
+
+      const portalQueueSave = (status = "draft", notify = false) => {
+        portalSaveChain = portalSaveChain
+          .catch(() => null)
+          .then(() => portalSaveCloud(status, notify))
+          .catch((error) => {
+            console.error("Cloud save failed:", error);
+            statusEl.textContent = tr("Saved in browser; account sync failed.");
+            if (notify) showToast("Account save failed");
+            return null;
+          });
+
+        return portalSaveChain;
+      };
+
+      document.getElementById("saveDraft")?.addEventListener("click", () => {
+        portalQueueSave("draft", true);
+      });
+
+      ["printForm", "generateBulkPdf", "emailForm"].forEach((buttonId) => {
+        document.getElementById(buttonId)?.addEventListener("click", () => {
+          if (form.checkValidity()) portalQueueSave("submitted", false);
+        });
+      });
+
+      const portalLoadDocument = async (id, adminMode = false) => {
+        const { data, error } = await portalSupabase
+          .from("documents")
+          .select("*")
+          .eq("id", id)
+          .single();
+
+        if (error || !data) {
+          showToast("Unable to open document");
+          return;
+        }
+
+        portalCurrentDocumentId = data.id;
+        portalApplyFormData(data.form_data);
+        portalDashboardModal.hidden = true;
+        portalAdminModal.hidden = true;
+        statusEl.textContent = tr(adminMode ? "Admin document opened." : "Document opened from your account.");
+      };
+
+      const portalDeleteDocument = async (id) => {
+        if (!confirm("Delete this saved estimate / order?")) return;
+
+        const { error } = await portalSupabase.from("documents").delete().eq("id", id);
+        if (error) {
+          showToast("Unable to delete document");
+          return;
+        }
+
+        if (portalCurrentDocumentId === id) portalCurrentDocumentId = null;
+        await portalOpenDashboard();
+      };
+
+      const portalRenderDocuments = (rows) => {
+        const target = document.getElementById("portalDocumentList");
+
+        if (!rows.length) {
+          target.innerHTML = '<div class="portal-empty">No saved estimates or orders yet. Create your first form to get started.</div>';
+          return;
+        }
+
+        target.innerHTML = rows.map((doc) => `
+          <article class="portal-document-card">
+            <div class="portal-document-main">
+              <strong>${portalEscape(doc.sidemark || "Untitled")}</strong>
+              <span>${portalEscape(doc.company_name || "No company")}</span>
+            </div>
+            <div class="portal-document-meta"><strong>${portalEscape(doc.document_type)}</strong><span>Type</span></div>
+            <div class="portal-document-meta"><strong class="portal-status-pill">${portalEscape(doc.status)}</strong><span>Status</span></div>
+            <div class="portal-document-meta"><strong>${portalEscape(portalDate(doc.updated_at))}</strong><span>Last Updated</span></div>
+            <div class="portal-document-actions">
+              <button class="portal-mini-button" type="button" data-doc-open="${doc.id}">Open</button>
+              <button class="portal-mini-button" type="button" data-doc-delete="${doc.id}">Delete</button>
+            </div>
+          </article>
+        `).join("");
+
+        target.querySelectorAll("[data-doc-open]").forEach((button) => {
+          button.addEventListener("click", () => portalLoadDocument(button.dataset.docOpen));
+        });
+
+        target.querySelectorAll("[data-doc-delete]").forEach((button) => {
+          button.addEventListener("click", () => portalDeleteDocument(button.dataset.docDelete));
+        });
+      };
+
+      const portalFilterDocuments = () => {
+        const query = document.getElementById("portalDocumentSearch").value.trim().toLowerCase();
+
+        portalRenderDocuments(
+          !query
+            ? portalDocuments
+            : portalDocuments.filter((doc) =>
+                [doc.sidemark, doc.company_name, doc.document_type, doc.status]
+                  .some((value) => String(value || "").toLowerCase().includes(query))
+              )
+        );
+      };
+
+      document.getElementById("portalDocumentSearch")?.addEventListener("input", portalFilterDocuments);
+
+      const portalOpenDashboard = async () => {
+        if (!portalSession?.user) return;
+
+        const { data, error } = await portalSupabase
+          .from("documents")
+          .select("id, user_id, document_type, company_name, sidemark, status, created_at, updated_at")
+          .eq("user_id", portalSession.user.id)
+          .order("updated_at", { ascending: false });
+
+        if (error) {
+          showToast("Unable to load your documents");
+          return;
+        }
+
+        portalDocuments = data || [];
+        document.getElementById("portalDocumentSearch").value = "";
+        portalRenderDocuments(portalDocuments);
+        portalDashboardModal.hidden = false;
+      };
+
+      document.getElementById("portalDashboardButton")?.addEventListener("click", portalOpenDashboard);
+
+      const portalRenderAdmin = () => {
+        const profileMap = new Map(portalAdminProfiles.map((profile) => [profile.id, profile]));
+        const accountQuery = document.getElementById("portalAdminAccountSearch").value.trim().toLowerCase();
+        const docQuery = document.getElementById("portalAdminDocumentSearch").value.trim().toLowerCase();
+
+        const docCounts = new Map();
+        portalAdminDocs.forEach((doc) => docCounts.set(doc.user_id, (docCounts.get(doc.user_id) || 0) + 1));
+
+        document.getElementById("portalAdminAccounts").innerHTML = portalAdminProfiles
+          .filter((profile) =>
+            !accountQuery ||
+            [profile.username, profile.email, profile.company_name, profile.role]
+              .some((value) => String(value || "").toLowerCase().includes(accountQuery))
+          )
+          .map((profile) => `
+            <tr>
+              <td><strong>${portalEscape(profile.username)}</strong></td>
+              <td>${portalEscape(profile.email)}</td>
+              <td>${portalEscape(profile.company_name || "—")}</td>
+              <td>${portalEscape(profile.role)}</td>
+              <td>${docCounts.get(profile.id) || 0}</td>
+              <td>${portalEscape(portalDate(profile.created_at))}</td>
+              <td>${portalEscape(portalDate(profile.last_seen_at))}</td>
+            </tr>
+          `).join("");
+
+        document.getElementById("portalAdminDocuments").innerHTML = portalAdminDocs
+          .filter((doc) => {
+            const profile = profileMap.get(doc.user_id);
+            return !docQuery ||
+              [doc.sidemark, doc.company_name, doc.document_type, doc.status, profile?.username, profile?.email]
+                .some((value) => String(value || "").toLowerCase().includes(docQuery));
+          })
+          .map((doc) => {
+            const profile = profileMap.get(doc.user_id);
+            return `
+              <tr>
+                <td>${portalEscape(portalDate(doc.updated_at))}</td>
+                <td>${portalEscape(profile?.username || profile?.email || "Unknown")}</td>
+                <td>${portalEscape(doc.company_name || profile?.company_name || "—")}</td>
+                <td>${portalEscape(doc.sidemark || "Untitled")}</td>
+                <td>${portalEscape(doc.document_type)}</td>
+                <td><span class="portal-status-pill">${portalEscape(doc.status)}</span></td>
+                <td><button type="button" class="portal-mini-button" data-admin-open="${doc.id}">Open</button></td>
+              </tr>
+            `;
+          }).join("");
+
+        document.querySelectorAll("[data-admin-open]").forEach((button) => {
+          button.addEventListener("click", () => portalLoadDocument(button.dataset.adminOpen, true));
+        });
+
+        const clients = portalAdminProfiles.filter((p) => p.role === "client").length;
+        const estimates = portalAdminDocs.filter((d) => d.document_type === "Estimate").length;
+        const orders = portalAdminDocs.filter((d) => d.document_type === "Order").length;
+
+        document.getElementById("portalAdminStats").innerHTML = `
+          <div class="portal-stat"><strong>${clients}</strong><span>Client Accounts</span></div>
+          <div class="portal-stat"><strong>${portalAdminDocs.length}</strong><span>Total Documents</span></div>
+          <div class="portal-stat"><strong>${estimates}</strong><span>Estimates</span></div>
+          <div class="portal-stat"><strong>${orders}</strong><span>Orders</span></div>
+        `;
+      };
+
+      const portalOpenAdmin = async () => {
+        if (portalProfile?.role !== "admin") return;
+
+        const [profilesResult, docsResult] = await Promise.all([
+          portalSupabase
+            .from("profiles")
+            .select("id, username, email, company_name, role, is_active, created_at, last_seen_at")
+            .order("created_at", { ascending: false }),
+          portalSupabase
+            .from("documents")
+            .select("id, user_id, document_type, company_name, sidemark, status, created_at, updated_at")
+            .order("updated_at", { ascending: false })
+        ]);
+
+        if (profilesResult.error || docsResult.error) {
+          showToast("Unable to load admin panel");
+          return;
+        }
+
+        portalAdminProfiles = profilesResult.data || [];
+        portalAdminDocs = docsResult.data || [];
+        document.getElementById("portalAdminAccountSearch").value = "";
+        document.getElementById("portalAdminDocumentSearch").value = "";
+        portalRenderAdmin();
+        portalAdminModal.hidden = false;
+      };
+
+      document.getElementById("portalAdminButton")?.addEventListener("click", portalOpenAdmin);
+      document.getElementById("portalAdminAccountSearch")?.addEventListener("input", portalRenderAdmin);
+      document.getElementById("portalAdminDocumentSearch")?.addEventListener("input", portalRenderAdmin);
+
+      document.querySelectorAll("[data-close-portal-modal]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const modal = document.getElementById(button.dataset.closePortalModal);
+          if (modal) modal.hidden = true;
+        });
+      });
+
+      [portalDashboardModal, portalAdminModal].forEach((modal) => {
+        modal?.addEventListener("pointerdown", (event) => {
+          if (event.target === modal) modal.hidden = true;
+        });
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          portalDashboardModal.hidden = true;
+          portalAdminModal.hidden = true;
+        }
+      });
+
+      const portalInit = async () => {
+        try {
+          const { data: { session } } = await portalSupabase.auth.getSession();
+          if (session) {
+            await portalSetAuthenticated(session);
+          } else {
+            portalSetSignedOut();
+          }
+        } catch (error) {
+          console.error("Portal initialization failed:", error);
+          portalSetSignedOut();
+        }
+
+        portalSupabase.auth.onAuthStateChange(async (event, session) => {
+          if (event === "SIGNED_OUT" || !session) {
+            portalSetSignedOut();
+            return;
+          }
+
+          if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+            try {
+              await portalSetAuthenticated(session);
+            } catch (error) {
+              console.error("Profile refresh failed:", error);
+            }
+          }
+        });
+      };
+
+      portalInit();
+
 
       const isMobileKeyboardLayout = () =>
         window.matchMedia(
