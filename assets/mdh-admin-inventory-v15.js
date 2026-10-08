@@ -178,37 +178,44 @@ function review(id){
   for(const line of d.component_snapshot?.lines||[])if(line?.item_id)addManualLine(Number(line.opening_index),line);
  }
 }
-function linesForReview(){
- assert(reviewDoc && reviewDoc.document_type==="Order","No order selected");
- const op=reviewDoc.form_data?.openings||[], lines=[],preview=[];
- assert(op.length>0,"An order must contain at least one opening.");
+function linesForReview(requireAll=false){
+ assert(reviewDoc?.document_type==="Order","Select an Order");
+ const op=reviewDoc.form_data?.openings||[],lines=[],preview=[];
+ assert(op.length>0,"This order has no openings");
  for(let j=0;j<op.length;j++){
-   const panel=dialog.querySelector('[data-opening="'+j+'"]');assert(panel,"Opening "+(j+1)+" missing");
-   const recipe=recipes.find(r=>r.id===panel.querySelector(".roRecipe").value && r.active);
-   assert(recipe,"Select a recipe for opening "+(j+1)+".");
-   const raw=panel.querySelector(".roLength").value;
-   const feet=num(raw);
-   assert(raw.trim()!=="" && Number.isFinite(feet) && feet>0,"Enter an actual track length in feet for opening "+(j+1)+".");
+  const panel=dialog.querySelector('[data-opening="'+j+'"]');assert(panel,"Opening "+(j+1)+" missing");
+  const recipeId=panel.querySelector(".roRecipe").value;
+  if(recipeId){
+   const recipe=recipes.find(r=>r.id===recipeId&&r.active);assert(recipe,"Choose active recipe for opening "+(j+1));
+   const raw=panel.querySelector(".roLength").value,feet=Number(raw);
+   assert(raw.trim()&&Number.isFinite(feet)&&feet>0,"Enter track length for opening "+(j+1));
    for(const c of recipe.components||[]){
-      const item=items.find(i=>i.id===c.item_id);
-      assert(item && item.active,"Inactive or missing component in "+recipe.name);
-      const fixed=num(c.fixed),per=num(c.per_foot);
-      assert(Number.isFinite(fixed)&&Number.isFinite(per)&&fixed>=0&&per>=0,"Invalid recipe quantity.");
-      let qty=four(fixed+per*feet);
-      if(item.unit==="each")qty=Math.ceil(qty);
-      assert(qty>0 && Number.isFinite(qty),"Component quantity must be positive.");
-      lines.push({opening_index:j,item_id:item.id,quantity:qty});
-      preview.push({opening:j+1,item,qty});
+    const item=items.find(i=>i.id===c.item_id&&i.active);assert(item,"Recipe component inactive/missing");
+    const fixed=Number(c.fixed),per=Number(c.per_foot);
+    assert(Number.isFinite(fixed)&&Number.isFinite(per)&&fixed>=0&&per>=0,"Invalid recipe quantity");
+    let qty=four(fixed+per*feet);
+    if(item.unit==="each")qty=Math.ceil(qty);
+    assert(qty>0&&Number.isFinite(qty),"Invalid calculated quantity");
+    lines.push({opening_index:j,item_id:item.id,quantity:qty});preview.push({opening:j+1,item,qty});
    }
+  }
+  for(const row of panel.querySelectorAll(".roManualRow")){
+   const item=items.find(i=>i.id===row.querySelector(".rmItem").value&&i.active);
+   assert(item,"Select valid component for opening "+(j+1));
+   const raw=row.querySelector(".rmQuantity").value,qty=Number(raw);
+   assert(raw.trim()&&Number.isFinite(qty)&&qty>0&&four(qty)===qty,"Enter valid positive quantity for "+item.sku);
+   assert(item.unit!=="each"||Number.isInteger(qty),"Whole quantity required for "+item.sku);
+   lines.push({opening_index:j,item_id:item.id,quantity:qty});preview.push({opening:j+1,item,qty});
+  }
  }
- assert(lines.length>0,"Add components to the selected recipes.");
+ if(lines.length||requireAll)for(let j=0;j<op.length;j++)assert(lines.some(c=>c.opening_index===j),"Missing components for opening "+(j+1));
  return {lines,preview};
 }
 function previewLines(){
  const {lines,preview}=linesForReview(),byId=new Map();
  for(const row of preview){const old=byId.get(row.item.id)||{item:row.item,need:0};old.need=four(old.need+row.qty);byId.set(row.item.id,old);}
  const shortages=[...byId.values()].filter(r=>r.need>Number(r.item.stock));
- dialog.querySelector("#mdhPreview").innerHTML='<h3>Assembly-time stock requirements (informational)</h3><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><tr><th>Component</th><th>Required</th><th>Available</th><th>After Approval</th></tr>'+
+ dialog.querySelector("#mdhPreview").innerHTML='<h3>Assembly-time stock requirements (informational)</h3><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><tr><th>Component</th><th>Required</th><th>Available</th><th>After Assembly</th></tr>'+
  [...byId.values()].map(r=>'<tr><td>'+esc(r.item.sku)+' — '+esc(r.item.name)+'</td><td>'+esc(money(r.need))+'</td><td>'+esc(money(r.item.stock))+'</td><td style="color:'+(r.need>Number(r.item.stock)?"#ed7780":"inherit")+'">'+esc(money(Number(r.item.stock)-r.need))+'</td></tr>').join("")+'</table></div>'+
  (shortages.length?'<p class="mdh-low">Not enough stock. Stock must be received before production can finish the order.</p>':'<p class="mdh-good">All components appear available; the server rechecks and deducts them atomically upon production completion.</p>');
  return {lines,shortages};
@@ -268,16 +275,34 @@ dialog.addEventListener("click",async event=>{
  const b=event.target.closest("button[data-review-action]");if(!b||busy)return;
  const action=b.dataset.reviewAction;
  if(action==="close"){dialog.close();return;}
+ if(action==="add-manual"){addManualLine(Number(b.dataset.opening));return;}
+ if(action==="remove-manual"){b.closest(".roManualRow")?.remove();return;}
  try{
   if(action==="preview"){previewLines();return;}
-  assert(reviewDoc && reviewDoc.status==="submitted","Document is not awaiting review.");
-  let lines=[];
-  if(action==="approve" && reviewDoc.document_type==="Order"){
-   const p=previewLines();lines=p.lines;
+  assert(reviewDoc,"No document selected");
+  if(action==="configure"){
+   assert(reviewDoc.status==="approved"&&reviewDoc.document_type==="Order","Only approved Orders can be configured");
+   const {lines}=linesForReview(true);
+   if(!window.confirm("Save verified component quantities? Workers can finish assembly after components are saved. Inventory will be deducted only when they mark it complete."))return;
+   busy=true;await rpc("mdh_set_order_components",{p_id:reviewDoc.id,p_lines:lines});
+   dialog.close();await load();message("Verified components saved. Order ready for workroom completion.");return;
   }
-  if(!window.confirm(action==="approve" ? "Approve this "+reviewDoc.document_type+"? Approved orders enter the production queue; stock is deducted when assembly is marked complete." : "Reject this submission? No stock will be deducted."))return;
-  busy=true;const result=await rpc("mdh_review_document",{p_id:reviewDoc.id,p_decision:action==="approve"?"approved":"rejected",p_lines:lines,p_note:dialog.querySelector("#mdhReviewNote")?.value||"",p_expected:reviewDoc.updated_at});
-  dialog.close();await load();message(result?.already_reviewed?"Already reviewed; no additional stock deducted.":"Review saved. Approved orders will appear in production.");
+  assert(reviewDoc.status==="submitted","Only submitted documents may be approved/rejected");
+  let lines=[];
+  if(action==="approve"&&reviewDoc.document_type==="Order"){
+   lines=linesForReview(false).lines;
+   if(!lines.length&&!window.confirm("No verified component quantities. Approve and send to Production as AWAITING COMPONENTS? Staff will see the order but cannot mark it complete until you configure components."))return;
+  }
+  const decision=action==="approve"?"approved":"rejected";
+  if(!window.confirm(decision==="approved"?
+    (reviewDoc.document_type==="Order"?"Approve this Order and send it to the production page?":"Approve this Estimate? It will NOT appear in Production."):
+    "Reject this submission?"))return;
+  busy=true;
+  const result=await rpc("mdh_review_document",{p_id:reviewDoc.id,p_decision:decision,p_lines:lines,p_note:dialog.querySelector("#mdhReviewNote")?.value||"",p_expected:reviewDoc.updated_at});
+  const wasOrder=reviewDoc.document_type==="Order";
+  dialog.close();await load();message(result?.already_reviewed?"Already reviewed.":decision==="approved"&&wasOrder?
+    (result?.needs_components?"Approved and sent to Production — awaiting component configuration.":"Approved and sent to Production."):
+    "Review saved.");
  }catch(e){err(e);}finally{busy=false;}
 });
 const refresh=document.getElementById("refreshButton");
