@@ -30,7 +30,7 @@ css.textContent = [
 "#mdhV15 .mdh-actions{display:flex;gap:7px;flex-wrap:wrap;align-items:center}#mdhV15 .mdh-scroll{overflow-x:auto}#mdhV15 table{width:100%;border-collapse:collapse;font-size:.84rem}",
 "#mdhV15 th,#mdhV15 td{padding:11px 10px;text-align:left;border-bottom:1px solid var(--border-soft);vertical-align:middle}#mdhV15 th{color:var(--muted);font-size:.74rem;text-transform:uppercase;white-space:nowrap}",
 "#mdhV15 .mdh-muted{color:var(--muted);font-size:.8rem}#mdhV15 .mdh-alert{padding:12px 16px;border:1px solid var(--border);border-radius:10px;background:var(--surface-soft);margin:10px 0}",
-"#mdhV15 .mdh-good{color:#2dbe85}#mdhV15 .mdh-low{color:#ed7780}#mdhV15 .mdh-component{display:grid;grid-template-columns:minmax(140px,2fr) 1fr 1fr auto;gap:7px;align-items:end;margin:8px 0}",
+"#mdhV15 .mdh-good{color:var(--positive)}#mdhV15 .mdh-low{color:var(--shortage)}#mdhV15 .mdh-component{display:grid;grid-template-columns:minmax(140px,2fr) 1fr 1fr auto;gap:7px;align-items:end;margin:8px 0}",
 ".mdh-dialog{border:1px solid var(--border);border-radius:14px;max-width:980px;width:calc(100% - 28px);max-height:90vh;overflow:auto;background:var(--surface);color:var(--text);padding:22px;box-shadow:0 30px 70px rgba(0,0,0,.45)}",
 ".mdh-dialog::backdrop{background:rgba(0,0,0,.7)}.mdh-dialog .mdh-opening{margin:12px 0;padding:14px;border:1px solid var(--border);border-radius:12px}",
 ".mdh-dialog .mdh-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:10px}.mdh-dialog .mdh-actions{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}",
@@ -40,7 +40,7 @@ document.head.appendChild(css);
 const dialog=document.createElement("dialog");
 dialog.className="mdh-dialog";dialog.id="mdhReviewV15";document.body.appendChild(dialog);
 let profiles=[],docs=[],items=[],recipes=[],movements=[],reviewDoc=null,busy=false;
-function message(value,bad=false){ const el=document.getElementById("mdhStatusV15");if(el){el.textContent=value||"";el.style.color=bad?"#ed7780":"var(--text)";} }
+function message(value,bad=false){ const el=document.getElementById("mdhStatusV15");if(el){el.textContent=value||"";el.style.color=bad?"var(--shortage)":"var(--text)";} }
 function err(e){console.error("MDH V15:",e);message(e.message||String(e),true);window.alert(e.message||"Operation failed.");}
 async function rpc(fn,args){const {data,error}=await db.rpc(fn,args);if(error)throw error;return data;}
 async function load(){
