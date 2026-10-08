@@ -9,7 +9,8 @@ const db = window.supabase.createClient(
 const esc = v => String(v == null ? "" : v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
 const num = v => Number(v);
 const four = v => Math.round((Number(v) + Number.EPSILON) * 10000) / 10000;
-const fmt = v => v ? new Date(v).toLocaleString("en-US") : "—";
+const fmt=v=>v?new Date(v).toLocaleString('en-US',{timeZone:'America/New_York',dateStyle:'medium',timeStyle:'short'})+' ET':'—';
+const orderDate=d=>d.submitted_at?'Submitted '+fmt(d.submitted_at):'Created '+fmt(d.created_at);
 const money = v => Number(v || 0).toLocaleString("en-US",{maximumFractionDigits:4});
 const assert = (ok,msg) => { if (!ok) throw new Error(msg); };
 const app = document.getElementById("adminApp");
@@ -50,7 +51,7 @@ async function load(){
  assert(!mine.error && mine.data && mine.data.role==="admin" && mine.data.is_active,"Administrator access required.");
  const all=await Promise.all([
  db.from("profiles").select("id,username,email,company_name,role,is_active,approval_status,created_at").order("created_at",{ascending:false}),
- db.from("documents").select("id,user_id,sidemark,document_type,status,form_data,updated_at,created_at,inventory_deducted,component_snapshot").order("updated_at",{ascending:false}),
+ db.from("documents").select("id,user_id,company_name,sidemark,document_type,status,form_data,updated_at,created_at,submitted_at,approved_at,inventory_deducted,component_snapshot").order("updated_at",{ascending:false}),
  db.from("inventory_items").select("*").order("name"),
  db.from("assembly_recipes").select("*").order("name"),
  db.from("inventory_movements").select("id,item_id,document_id,delta,balance,reason,actor_id,created_at").order("created_at",{ascending:false}).limit(35)
@@ -73,8 +74,8 @@ function render(){
  const pending=docs.filter(d=>d.status==="submitted");
  const low=items.filter(i=>i.active && Number(i.stock)<=Number(i.low_stock)).length;
  const accountRows=profiles.filter(p=>p.role!=="admin").map(p=>'<tr><td><b>'+esc(p.username)+'</b><div class="mdh-muted">'+esc(p.email)+'</div></td><td>'+esc(p.company_name)+'</td><td>'+esc(p.approval_status||"pending")+'</td><td>'+esc(fmt(p.created_at))+'</td><td><div class="mdh-actions">'+(p.approval_status!=="approved"?'<button data-action="account" data-id="'+p.id+'" data-value="approved" class="primary">Approve</button>':'')+(p.approval_status!=="rejected"?'<button data-action="account" data-id="'+p.id+'" data-value="rejected">Reject</button>':'')+(p.approval_status!=="pending"?'<button data-action="account" data-id="'+p.id+'" data-value="pending">Set Pending</button>':'')+'</div></td></tr>');
- const docRows=docs.filter(d=>d.status==="submitted" || d.status==="approved" || d.status==="rejected").map(d=>{
- const p=profiles.find(x=>x.id===d.user_id)||{};return '<tr><td><b>'+esc(d.sidemark||"Untitled")+'</b><div class="mdh-muted">'+esc(p.username||p.email||"Unknown")+'</div></td><td>'+esc(d.document_type)+'</td><td>'+esc(d.status)+'</td><td>'+esc(fmt(d.updated_at))+'</td><td>'+(d.inventory_deducted?"Yes":"No")+'</td><td><button data-action="review" data-id="'+d.id+'">'+(d.status==="submitted"?"Review":"View")+'</button></td></tr>';
+ const docRows=docs.filter(d=>d.status==="submitted" || d.status==="approved" || d.status==="rejected" || d.status==="completed").map(d=>{
+ const p=profiles.find(x=>x.id===d.user_id)||{};return '<tr><td><b>'+esc(d.sidemark||"Untitled")+'</b><div class="mdh-muted">'+esc(orderDate(d))+' · '+esc(d.id.slice(0,8))+'</div><div class="mdh-muted">'+esc(p.username||p.email||"Unknown")+'</div></td><td>'+esc(d.document_type)+'</td><td>'+esc(d.status)+'</td><td>'+esc(fmt(d.updated_at))+'</td><td>'+(d.inventory_deducted?"Yes":"No")+'</td><td><button data-action="review" data-id="'+d.id+'">'+(d.status==="submitted"?"Review":"View")+'</button></td></tr>';
  });
  const itemRows=items.map(i=>'<tr><td><b>'+esc(i.sku)+'</b><div class="mdh-muted">'+esc(i.name)+'</div></td><td>'+esc(i.unit)+'</td><td class="'+(Number(i.stock)<=Number(i.low_stock)?"mdh-low":"mdh-good")+'"><b>'+money(i.stock)+'</b></td><td>'+money(i.low_stock)+'</td><td>'+esc(i.active?"Active":"Inactive")+'</td><td><div class="mdh-actions"><button data-action="edit-item" data-id="'+i.id+'">Edit</button><button data-action="stock" data-id="'+i.id+'">Receive / Adjust</button></div></td></tr>');
  const recipeRows=recipes.map(r=>'<tr><td><b>'+esc(r.name)+'</b></td><td>'+esc(Object.entries(r.match_fields||{}).map(([k,v])=>k+": "+v).join("; ")||"Manual selection")+'</td><td>'+esc((r.components||[]).map(c=>{const i=items.find(x=>x.id===c.item_id);return (i?i.sku:"Unknown")+" ("+c.fixed+" fixed + "+c.per_foot+"/ft)";}).join(", "))+'</td><td>'+esc(r.active?"Active":"Inactive")+'</td><td><button data-action="edit-recipe" data-id="'+r.id+'">Edit</button></td></tr>');
@@ -82,7 +83,7 @@ function render(){
  host.innerHTML='<div id="mdhStatusV15" role="status" aria-live="polite"></div>'+
  section('Stock Alerts','Unread warnings sent to each active administrator at 150 remaining.','<div id="mdhAlerts"></div>')+
  section('Approval Queue','Approve production workers and clients. Workers use production.html; clients use the order form.  '+awaiting+' pending.',table(['Username','Company','Status','Registered','Actions'],accountRows,'No client accounts yet.'))+
- section('Order & Estimate Reviews',pending.length+' submission(s) awaiting administrator review. Approved orders go to production; inventory is deducted only when assembly is completed.',table(['Sidemark / Account','Type','Status','Last Changed','Stock Deducted','Action'],docRows,'No submitted documents to review.'))+
+ section('Order & Estimate Reviews',pending.length+' submission(s) awaiting administrator review. Approved orders go to production; inventory is deducted only when assembly is completed.',table(['Sidemark / Account / Date','Type','Status','Last Changed','Stock Deducted','Action'],docRows,'No submitted documents to review.'))+
  section('Inventory / Products',items.length+' components in the catalog, '+low+' at or below minimum stock. System alerts trigger at 150 or fewer.',
   '<form id="mdhItemForm"><input type="hidden" name="id"><div class="mdh-grid">'+
    '<label>SKU<input name="sku" required maxlength="80" placeholder="SOMFY-MOTOR-01"></label>'+
