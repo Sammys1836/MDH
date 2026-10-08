@@ -786,16 +786,23 @@
       position: fixed;
       top: 20px;
       left: 50%;
-      z-index: 40;
+      z-index: 21000; /* Higher than sticky portal navigation and dialogs */
+      width: max-content;
+      max-width: min(620px, calc(100vw - 24px));
       padding: 12px 16px;
-      color: white;
-      background: var(--navy);
+      color: #fff;
+      background: #263548;
+      border: 1px solid rgba(255,255,255,.18);
       border-radius: 11px;
-      box-shadow: var(--shadow);
+      box-shadow: 0 12px 32px rgba(0,0,0,.25);
+      text-align: center;
+      line-height: 1.4;
+      white-space: normal;
+      overflow-wrap: anywhere;
       opacity: 0;
       pointer-events: none;
       transform: translate(-50%, -18px);
-      transition: .22s ease;
+      transition: opacity .22s ease, transform .22s ease;
     }
 
     .toast.show {
@@ -4612,10 +4619,22 @@
       const bulkCurveTemplateFiles = new WeakMap();
       const bulkCurveTemplateObjectUrls = new WeakMap();
 
+      let toastHideTimer = null;
       const showToast = (message) => {
+        // On signed-in pages the sticky admin/user toolbar can wrap on phones.
+        // Position each notification immediately BELOW its measured bottom edge.
+        const header = document.getElementById("portalUserBar");
+        const headerBottom = document.body.classList.contains("portal-authenticated") &&
+          header && !header.hidden ? header.getBoundingClientRect().bottom : 0;
+        toast.style.top = Math.max(20, Math.ceil(headerBottom) + 12) + "px";
         toast.textContent = tr(message);
         toast.classList.add("show");
-        setTimeout(() => toast.classList.remove("show"), 2300);
+        // Rapid back-to-back notices should not close the latest notice early.
+        if (toastHideTimer) clearTimeout(toastHideTimer);
+        toastHideTimer = setTimeout(() => {
+          toast.classList.remove("show");
+          toastHideTimer = null;
+        }, 4200);
       };
 
 
