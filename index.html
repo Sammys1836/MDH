@@ -2603,6 +2603,11 @@
 
 
     #submitOrder { margin-left: 0; background: var(--accent); font-weight: 900; }
+    #convertEstimate { margin-left:0; }
+    #convertEstimate[hidden] { display:none!important; }
+    .mdh-company-lock { display:block; margin-top:7px; color:var(--muted); font-size:.74rem; line-height:1.4; }
+    #companyName[readonly] { background:var(--surface-soft); border-color:var(--border-soft); cursor:default; }
+    @media(max-width:860px) { .action-inner #convertEstimate:not([hidden]) { grid-column:1 / -1; min-height:43px; font-size:.8rem; } }
     /* Make the explicit approval action easy to find above the export controls. */
     @media(max-width: 860px) {
       .action-inner #submitOrder { order: -1; grid-column: 1 / -1; min-height: 43px; font-size: .85rem; }
@@ -2863,11 +2868,8 @@
 <div class="grid">
 <div class="field">
 <label for="companyName">Company Name <span class="required-star">*</span></label>
-<input autocomplete="organization" id="companyName" name="companyName" placeholder="Enter Company Name" required=""/>
-<div class="check-row">
-<input id="rememberCompany" name="rememberCompany" type="checkbox"/>
-<label for="rememberCompany">Remember this company name on this device</label>
-</div>
+<input autocomplete="organization" id="companyName" name="companyName" placeholder="Company from account" required readonly aria-readonly="true" title="Company name is managed in your MDH account"/>
+<div class="check-row" hidden><input id="rememberCompany" name="rememberCompany" type="checkbox" checked/><label for="rememberCompany">Company is assigned to your account</label></div><small class="mdh-company-lock">Company name is automatically assigned from your MDH account and cannot be changed on Estimates or Orders.</small>
 </div>
 <div class="field">
 <label for="sidemark">Sidemark <span class="required-star">*</span></label>
@@ -3014,6 +3016,7 @@
 <button class="button ghost" id="clearForm" type="button">Clear</button>
 <button class="button secondary" id="saveDraft" type="button">Save Draft</button>
 <button class="button primary" id="submitOrder" type="button" aria-label="Submit order for administrator approval">Submit Order</button>
+<button class="button secondary" id="convertEstimate" type="button">Convert Estimate → Order &amp; Submit</button>
 <button class="button secondary" id="printForm" type="button">Print / Save PDF</button>
 <button class="button secondary" id="generateBulkPdf" type="button">Generate Bulk PDF</button>
 <button class="button primary" id="emailForm" type="button">Generate PDF &amp; Email</button>
@@ -10013,6 +10016,7 @@
         createOpening();
         portalCurrentDocumentId = null;
         portalCurrentDocumentStatus = "draft";
+        portalCurrentDocumentType = "Estimate";
         portalUpdateSubmissionControls();
         statusEl.textContent = tr("Form cleared.");
         showToast("Form cleared");
@@ -10219,10 +10223,20 @@
       let portalProfile = null;
       let portalCurrentDocumentId = null;
       let portalCurrentDocumentStatus = "draft";
+      let portalCurrentDocumentType = "Estimate";
+      const portalApplyAccountCompany = () => {
+        const accountCompany = String(portalProfile?.company_name || "").trim();
+        companyName.value = accountCompany;
+        companyName.readOnly = true;
+        companyName.setAttribute("aria-readonly", "true");
+        rememberCompany.checked = true;
+        return accountCompany;
+      };
       let portalSubmitting = false;
       const portalUpdateSubmissionControls = () => {
         const submit = document.getElementById("submitOrder");
         const draft = document.getElementById("saveDraft");
+        const convert = document.getElementById("convertEstimate");
         const isOrder = document.getElementById("formType")?.value === "Order";
         const canSubmit = Boolean(
           portalSession?.user && portalProfile?.is_active &&
@@ -10242,6 +10256,11 @@
           submit.title = portalCurrentDocumentStatus === "draft"
             ? "Send order for MDH administrator review"
             : "Order is already submitted and cannot be re-submitted";
+        }
+        if (convert) {
+          convert.hidden = !canSubmit || isOrder;
+          convert.disabled = portalSubmitting;
+          convert.title = "Create a new submitted Order while keeping the original Estimate unchanged";
         }
         if (draft) draft.disabled = portalSubmitting ||
           (portalCurrentDocumentId !== null && portalCurrentDocumentStatus !== "draft");
@@ -10341,7 +10360,9 @@
         portalProfile = null;
         portalCurrentDocumentId = null;
         portalCurrentDocumentStatus = "draft";
+        portalCurrentDocumentType = "Estimate";
         portalSubmitting = false;
+        portalApplyAccountCompany();
         portalUpdateSubmissionControls();
         document.body.classList.remove("portal-auth-pending", "portal-authenticated");
         document.body.classList.add("portal-signed-out");
@@ -10374,6 +10395,7 @@
 
         document.body.classList.remove("portal-auth-pending", "portal-signed-out");
         document.body.classList.add("portal-authenticated");
+        portalApplyAccountCompany();
         portalUpdateSubmissionControls();
 
         const username = portalProfile.username || "Client";
@@ -10475,9 +10497,7 @@
       });
 
       const portalNewForm = () => {
-        const preferredCompany =
-          portalProfile?.company_name ||
-          (rememberCompany.checked ? companyName.value.trim() : "");
+        const preferredCompany = portalProfile?.company_name || "";
 
         [...openingsContainer.querySelectorAll(".opening-card")].forEach((card) => {
           revokeObjectUrl(curveTemplateObjectUrls, card);
@@ -10489,12 +10509,10 @@
         currentOpeningCard = null;
         portalCurrentDocumentId = null;
         portalCurrentDocumentStatus = "draft";
+        portalCurrentDocumentType = "Estimate";
         localStorage.removeItem(DRAFT_KEY);
 
-        if (preferredCompany) {
-          companyName.value = toProperCase(preferredCompany);
-          rememberCompany.checked = true;
-        }
+        portalApplyAccountCompany();
 
         createOpening();
         updateOpeningMeta();
@@ -10519,8 +10537,7 @@
         openingsContainer.innerHTML = "";
         currentOpeningCard = null;
 
-        companyName.value = toProperCase(data.companyName || "");
-        rememberCompany.checked = Boolean(data.rememberCompany);
+        portalApplyAccountCompany();
         document.getElementById("sidemark").value = toProperCase(data.sidemark || "");
         document.getElementById("formType").value = data.formType || "Estimate";
         document.getElementById("projectNotes").value = data.projectNotes || "";
@@ -10544,6 +10561,10 @@
         }
         if (!["draft","submitted"].includes(status)) throw new Error("Invalid document status.");
         const data = status === "submitted" ? getEnglishSubmissionData() : getFormData();
+        data.companyName = portalApplyAccountCompany();
+        if (!data.companyName) throw new Error("Your MDH account must have a registered company name.");
+        if (portalCurrentDocumentId && portalCurrentDocumentType !== data.formType)
+          throw new Error("This saved document is an Estimate. Use Convert Estimate to Order & Submit to preserve the original Estimate.");
         if (status === "submitted" && data.formType !== "Order") {
           throw new Error("Select Order as the form type before submitting.");
         }
@@ -10579,6 +10600,7 @@
         if (result.error) throw result.error;
         portalCurrentDocumentId = result.data.id;
         portalCurrentDocumentStatus = status;
+        portalCurrentDocumentType = data.formType;
         portalUpdateSubmissionControls();
         if (status === "submitted") {
           clearTimeout(saveTimer);
@@ -10652,6 +10674,59 @@
         }
       });
 
+      // Conversion creates a NEW submitted order and leaves the original estimate
+      // (draft, submitted or approved) untouched for audit/history purposes.
+      document.getElementById("convertEstimate")?.addEventListener("click", async () => {
+        if (portalSubmitting) return;
+        if (!portalSession?.user || !portalProfile?.is_active ||
+            portalProfile.approval_status !== "approved" ||
+            !["client","admin"].includes(portalProfile.role)) {
+          showToast("Approved account required to submit an order"); return;
+        }
+        const typeSelect=document.getElementById("formType");
+        if(typeSelect.value!=="Estimate") {
+          showToast("Choose Estimate to convert it into a new Order");return;
+        }
+        if(!portalApplyAccountCompany()) {
+          showToast("Your registered company name is missing. Contact an administrator.");return;
+        }
+        if(!validateForm()) return;
+        if(!window.confirm("Convert this Estimate to a NEW Order and submit for admin approval? The original estimate will be kept unchanged."))return;
+        portalSubmitting=true;portalUpdateSubmissionControls();
+        try{
+          await portalSaveChain.catch(()=>null);
+          const data=getEnglishSubmissionData();
+          data.companyName=portalApplyAccountCompany();
+          data.formType="Order";
+          const payload={
+            user_id:portalSession.user.id,
+            document_type:"Order",
+            company_name:data.companyName,
+            sidemark:data.sidemark||"",
+            status:"submitted",
+            form_data:data
+          };
+          const {data:created,error:saveError}=await portalSupabase
+            .from("documents").insert(payload).select("id,document_type,status").single();
+          if(saveError)throw saveError;
+          if(!created?.id)throw new Error("Unable to confirm converted Order");
+          portalCurrentDocumentId=created.id;
+          portalCurrentDocumentType="Order";
+          portalCurrentDocumentStatus="submitted";
+          typeSelect.value="Order";
+          clearTimeout(saveTimer);
+          localStorage.removeItem(DRAFT_KEY);
+          statusEl.textContent="Estimate converted. New Order submitted — pending administrator approval.";
+          showToast("Estimate converted and new Order submitted for approval");
+        }catch(e){
+          console.error("Estimate conversion failed:",e);
+          showToast(e.message||"Conversion failed. Estimate remains unchanged.");
+        }finally{
+          portalSubmitting=false;
+          portalUpdateSubmissionControls();
+        }
+      });
+
       const portalLoadDocument = async (id, adminMode = false) => {
         const { data, error } = await portalSupabase
           .from("documents")
@@ -10666,6 +10741,7 @@
 
         portalCurrentDocumentId = data.id;
         portalCurrentDocumentStatus = data.status || "draft";
+        portalCurrentDocumentType = data.document_type;
         portalApplyFormData(data.form_data);
         portalDashboardModal.hidden = true;
         portalAdminModal.hidden = true;
