@@ -9095,6 +9095,8 @@
       };
 
       const saveDraft = (notify = false) => {
+        if (portalSubmitting ||
+            (portalCurrentDocumentId && portalCurrentDocumentStatus !== "draft")) return;
         updateRememberedCompany();
         localStorage.setItem(DRAFT_KEY, JSON.stringify(getFormData()));
         statusEl.textContent = tr("Draft saved in this browser.");
@@ -9102,6 +9104,8 @@
       };
 
       const scheduleSave = () => {
+        if (portalSubmitting ||
+            (portalCurrentDocumentId && portalCurrentDocumentStatus !== "draft")) return;
         statusEl.textContent = tr("Saving…");
         clearTimeout(saveTimer);
         saveTimer = setTimeout(() => saveDraft(false), 500);
@@ -9981,6 +9985,9 @@
         }
 
         createOpening();
+        portalCurrentDocumentId = null;
+        portalCurrentDocumentStatus = "draft";
+        portalUpdateSubmissionControls();
         statusEl.textContent = tr("Form cleared.");
         showToast("Form cleared");
       });
@@ -10492,7 +10499,11 @@
 
         (data.openings?.length ? data.openings : [{}]).forEach(createOpening);
         updateOpeningMeta();
-        saveDraft(false);
+        if (portalCurrentDocumentStatus === "draft") saveDraft(false);
+        else {
+          clearTimeout(saveTimer);
+          localStorage.removeItem(DRAFT_KEY);
+        }
         portalUpdateSubmissionControls();
         window.scrollTo({ top: 0, behavior: "smooth" });
       };
@@ -10541,7 +10552,10 @@
         portalCurrentDocumentId = result.data.id;
         portalCurrentDocumentStatus = status;
         portalUpdateSubmissionControls();
-        if (status === "submitted") localStorage.removeItem(DRAFT_KEY);
+        if (status === "submitted") {
+          clearTimeout(saveTimer);
+          localStorage.removeItem(DRAFT_KEY);
+        }
         statusEl.textContent = status === "draft"
           ? tr("Draft saved to your account.")
           : "Order submitted — pending administrator approval.";
@@ -10636,7 +10650,11 @@
           return;
         }
 
-        if (portalCurrentDocumentId === id) portalCurrentDocumentId = null;
+        if (portalCurrentDocumentId === id) {
+          portalCurrentDocumentId = null;
+          portalCurrentDocumentStatus = "draft";
+          portalUpdateSubmissionControls();
+        }
         await portalOpenDashboard();
       };
 
