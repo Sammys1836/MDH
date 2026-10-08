@@ -10299,6 +10299,27 @@
           username.charAt(0).toUpperCase() || "M";
         document.getElementById("portalAdminButton").hidden =
           portalProfile.role !== "admin";
+
+        if (portalProfile.role === "admin") {
+          const params = new URLSearchParams(window.location.search);
+          const adminFormRequested = params.get("adminForm") === "1";
+
+          if (!adminFormRequested) {
+            window.location.replace("admin.html");
+            return;
+          }
+
+          const adminDocumentId =
+            params.get("document") ||
+            sessionStorage.getItem("mdhAdminOpenDocumentId");
+
+          if (adminDocumentId) {
+            sessionStorage.removeItem("mdhAdminOpenDocumentId");
+            window.setTimeout(() => {
+              portalLoadDocument(adminDocumentId, true);
+            }, 0);
+          }
+        }
       };
 
       portalLoginForm?.addEventListener("submit", async (event) => {
@@ -10690,7 +10711,12 @@
         portalAdminModal.hidden = false;
       };
 
-      document.getElementById("portalAdminButton")?.addEventListener("click", portalOpenAdmin);
+      document.getElementById("portalAdminButton")?.addEventListener(
+        "click",
+        () => {
+          window.location.href = "admin.html";
+        }
+      );
       document.getElementById("portalAdminAccountSearch")?.addEventListener("input", portalRenderAdmin);
       document.getElementById("portalAdminDocumentSearch")?.addEventListener("input", portalRenderAdmin);
 
