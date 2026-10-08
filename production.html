@@ -1,11 +1,43 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>MDH Production Queue</title>
-<script src="assets/mdh-theme.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/mdh-theme.js?v=20261008-production-menu"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--page:#f3f6f8;--surface:#fff;--text:#26313d;--muted:#66717d;--border:#cdd6dc;--accent:#ad3540;--soft:#eef2f5}
 html[data-theme=dark]{--page:#10161d;--surface:#1d2933;--text:#eff5fc;--muted:#a6b4bf;--border:#495866;--soft:#293746;--accent:#e05360}html[data-theme=dark][data-theme-variant=v2]{--page:#050607;--surface:#0b0e11;--soft:#171c21}
 *{box-sizing:border-box}body{margin:0;background:var(--page);color:var(--text);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}header{background:var(--surface);border-bottom:1px solid var(--border)}.bar{max-width:1100px;margin:auto;padding:18px 16px;display:flex;gap:15px;justify-content:space-between;align-items:center;flex-wrap:wrap}h1{font-size:1.32rem;margin:0}h2{font-size:1.15rem;margin-top:0}p{color:var(--muted)}main{max-width:1100px;margin:24px auto;padding:0 16px}.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:0 12px 25px rgba(0,0,0,.04)}button,input{font:inherit}button{padding:10px 15px;background:var(--accent);color:white;border:0;border-radius:8px;cursor:pointer;font-weight:700}button:disabled{opacity:.5;cursor:wait}input:not([type=checkbox]){width:100%;padding:11px;border:1px solid var(--border);border-radius:8px;color:var(--text);background:var(--surface)}label{display:block;margin:10px 0}label span{display:block;margin-bottom:5px;font-size:.8rem;font-weight:700}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.queue{display:grid;gap:10px}.job{border:1px solid var(--border);border-radius:10px;padding:16px;display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px;background:var(--soft)}.path{font-size:1.04rem;font-weight:750;line-height:1.7}.meta{color:var(--muted);font-size:.8rem}.check{display:flex;gap:10px;align-items:center;font-weight:750;cursor:pointer}.check input{width:22px;height:22px;accent-color:var(--accent)}.components{font-size:.83rem;margin:9px 0 0;color:var(--muted)}.hide{display:none!important}#error{color:#e05360;white-space:pre-wrap;margin:15px 0}#success{color:#187749}@media(max-width:600px){.job{grid-template-columns:1fr}.card{padding:15px}}
-</style></head><body><header><div class="bar"><h1>MDH | Production</h1><div class="row"><select id="adminTheme" aria-label="Appearance"><option value="system">System Default</option><option value="light">Light</option><option value="dark">Dark</option><option value="darkv2">Dark v2</option></select><button id="refresh" class="hide">Refresh</button><button id="logout" class="hide">Sign Out</button></div></div></header>
+
+/* Same Appearance dropdown styling as the MDH client form. */
+:root{--navy:#263548;--navy-soft:#eaf0f5;--border-soft:#e2e8ec;--field:#fff;--focus:#26567a;color-scheme:light}
+html[data-theme="dark"]{--navy:#e7eef6;--navy-soft:#293746;--border-soft:#2d3945;--field:#131b24;--focus:#8acbff;color-scheme:dark}
+html[data-theme="dark"][data-theme-variant="v2"]{--navy:#f0f3f6;--navy-soft:#171c21;--border-soft:#20272e;--field:#080b0e}
+.theme-picker{position:relative;display:flex;justify-content:flex-end}
+.theme-button{display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:9px 13px;color:var(--navy);background:var(--navy-soft);border:1px solid #c7d4de;border-radius:11px;cursor:pointer;font-size:.86rem;font-weight:750;white-space:nowrap;transition:background .18s ease,border-color .18s ease,transform .18s ease}
+.theme-button:hover{background:#dfeaf1;border-color:#95aab9;transform:translateY(-1px)}
+html[data-theme="dark"] .theme-button{color:var(--text);background:#263442;border-color:#465563}
+html[data-theme="dark"] .theme-button:hover{background:#314252;border-color:#607181}
+.theme-menu{position:absolute;top:calc(100% + 7px);right:0;z-index:35;width:205px;overflow:hidden;padding:6px;background:var(--surface);border:1px solid var(--border-soft);border-radius:13px;box-shadow:0 16px 38px rgba(28,42,56,.18)}
+.theme-menu[hidden]{display:none}
+.theme-option{display:block;width:100%;min-height:42px;padding:9px 11px;color:var(--text);background:transparent;border:0;border-radius:9px;cursor:pointer;text-align:left;font-weight:650}
+.theme-option:hover,.theme-option.active{color:var(--navy);background:var(--navy-soft)}
+html[data-theme="dark"] .theme-option:hover,html[data-theme="dark"] .theme-option.active{color:var(--text);background:#2c3a48}
+.theme-button:focus-visible,.theme-option:focus-visible,.header-link:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.language-caret{font-size:.72rem;opacity:.7}
+.header-link{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:9px 13px;color:var(--text);background:var(--soft);border:1px solid var(--border);border-radius:11px;font-size:.84rem;font-weight:750;text-decoration:none;white-space:nowrap}
+.header-link:hover{background:var(--navy-soft)}
+@media(max-width:600px){.bar>.row{width:100%;justify-content:flex-start;gap:8px}.theme-button{min-height:40px;padding:8px 10px;font-size:.8rem}.theme-menu{right:auto;left:0}.header-link{min-height:40px;padding:8px 10px;font-size:.8rem}}
+</style></head><body><header><div class="bar"><h1>MDH | Production</h1><div class="row"><div class="theme-picker">
+<button class="theme-button" id="themeButton" type="button" aria-expanded="false" aria-haspopup="true" aria-controls="themeMenu" aria-label="Appearance">
+<span id="themeIcon" aria-hidden="true">◐</span>
+<span id="themeButtonText">Appearance: System Default</span>
+<span class="language-caret" aria-hidden="true">▼</span>
+</button>
+<div class="theme-menu" id="themeMenu" hidden>
+<button class="theme-option" data-theme-choice="system" type="button">System Default</button>
+<button class="theme-option" data-theme-choice="light" type="button">Light</button>
+<button class="theme-option" data-theme-choice="dark" type="button">Dark</button>
+<button class="theme-option" data-theme-choice="darkv2" type="button">Dark v2</button>
+</div>
+</div><a href="admin.html" id="returnToAdmin" class="header-link hide">← Admin Panel</a><button id="refresh" class="hide">Refresh</button><button id="logout" class="hide">Sign Out</button></div></div></header>
 <main><section class="card" id="login"><h2>Production &amp; Admin Sign In</h2><p>Sign in with your existing MDH username and password. Approved production staff and administrators can access this page.</p><form id="loginForm"><label><span>Username</span><input id="username" name="username" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required></label><label><span>Password</span><input id="password" type="password" autocomplete="current-password" required></label><button>Sign In</button></form></section>
 <section id="workspace" class="hide"><div class="card"><h2>Assembly Queue</h2><p>Company Name › Sidemark › Order. Check a job after the track is fully assembled. Stock is removed only after the server successfully confirms the job.</p><div class="row"><input type="search" id="search" placeholder="Search company, sidemark, order" aria-label="Search production orders"></div><p id="count"></p></div><div class="card"><div id="jobs" class="queue"></div></div></section>
-<div id="error" role="alert"></div><div id="success" role="status"></div></main><script src="assets/mdh-production.js?v=20261008-username-login"></script></body></html>
+<div id="error" role="alert"></div><div id="success" role="status"></div></main><script src="assets/mdh-production.js?v=20261008-production-menu-admin-link"></script></body></html>
