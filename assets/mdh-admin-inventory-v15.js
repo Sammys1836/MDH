@@ -57,8 +57,10 @@ async function load(){
  ]);
  all.forEach(r=>{if(r.error)throw r.error;});
  [profiles,docs,items,recipes,movements]=all.map(r=>r.data||[]);
- render();
+ render();await loadAlerts();
 }
+
+async function loadAlerts(){const {data,error}=await db.from('stock_alerts').select('id,item_id,stock,created_at,read_at').is('read_at',null).order('created_at',{ascending:false}).limit(100);if(error)throw error;const alerts=data||[];const box=host.querySelector('#mdhAlerts');if(box)box.innerHTML=alerts.length?alerts.map(a=>'<div class="mdh-alert"><b>Low Stock:</b> '+esc((items.find(i=>i.id===a.item_id)||{}).name||a.item_id)+' — '+esc(a.stock)+' remaining <button data-action="alert-read" data-id="'+a.id+'">Dismiss</button></div>').join(''):'<span class="mdh-muted">No unread low stock alerts.</span>';}
 function table(headers,rows,empty){
  return '<div class="mdh-scroll"><table><thead><tr>'+headers.map(h=>'<th>'+esc(h)+'</th>').join("")+'</tr></thead><tbody>'+(rows.length?rows.join(""):'<tr><td colspan="'+headers.length+'" class="mdh-muted">'+esc(empty)+'</td></tr>')+'</tbody></table></div>';
 }
@@ -67,10 +69,10 @@ function section(title,subtitle,body){
 }
 function options(entries,selected){return entries.map(([v,t])=>'<option value="'+esc(v)+'"'+(String(v)===String(selected)?" selected":"")+'>'+esc(t)+'</option>').join("");}
 function render(){
- const awaiting=profiles.filter(p=>p.role==="client" && p.approval_status==="pending").length;
+ const awaiting=profiles.filter(p=>p.role!=="admin" && p.approval_status==="pending").length;
  const pending=docs.filter(d=>d.status==="submitted");
  const low=items.filter(i=>i.active && Number(i.stock)<=Number(i.low_stock)).length;
- const accountRows=profiles.filter(p=>p.role==="client").map(p=>'<tr><td><b>'+esc(p.username)+'</b><div class="mdh-muted">'+esc(p.email)+'</div></td><td>'+esc(p.company_name)+'</td><td>'+esc(p.approval_status||"pending")+'</td><td>'+esc(fmt(p.created_at))+'</td><td><div class="mdh-actions">'+(p.approval_status!=="approved"?'<button data-action="account" data-id="'+p.id+'" data-value="approved" class="primary">Approve</button>':'')+(p.approval_status!=="rejected"?'<button data-action="account" data-id="'+p.id+'" data-value="rejected">Reject</button>':'')+(p.approval_status!=="pending"?'<button data-action="account" data-id="'+p.id+'" data-value="pending">Set Pending</button>':'')+'</div></td></tr>');
+ const accountRows=profiles.filter(p=>p.role!=="admin").map(p=>'<tr><td><b>'+esc(p.username)+'</b><div class="mdh-muted">'+esc(p.email)+'</div></td><td>'+esc(p.company_name)+'</td><td>'+esc(p.approval_status||"pending")+'</td><td>'+esc(fmt(p.created_at))+'</td><td><div class="mdh-actions">'+(p.approval_status!=="approved"?'<button data-action="account" data-id="'+p.id+'" data-value="approved" class="primary">Approve</button>':'')+(p.approval_status!=="rejected"?'<button data-action="account" data-id="'+p.id+'" data-value="rejected">Reject</button>':'')+(p.approval_status!=="pending"?'<button data-action="account" data-id="'+p.id+'" data-value="pending">Set Pending</button>':'')+'</div></td></tr>');
  const docRows=docs.filter(d=>d.status==="submitted" || d.status==="approved" || d.status==="rejected").map(d=>{
  const p=profiles.find(x=>x.id===d.user_id)||{};return '<tr><td><b>'+esc(d.sidemark||"Untitled")+'</b><div class="mdh-muted">'+esc(p.username||p.email||"Unknown")+'</div></td><td>'+esc(d.document_type)+'</td><td>'+esc(d.status)+'</td><td>'+esc(fmt(d.updated_at))+'</td><td>'+(d.inventory_deducted?"Yes":"No")+'</td><td><button data-action="review" data-id="'+d.id+'">'+(d.status==="submitted"?"Review":"View")+'</button></td></tr>';
  });
@@ -78,9 +80,10 @@ function render(){
  const recipeRows=recipes.map(r=>'<tr><td><b>'+esc(r.name)+'</b></td><td>'+esc(Object.entries(r.match_fields||{}).map(([k,v])=>k+": "+v).join("; ")||"Manual selection")+'</td><td>'+esc((r.components||[]).map(c=>{const i=items.find(x=>x.id===c.item_id);return (i?i.sku:"Unknown")+" ("+c.fixed+" fixed + "+c.per_foot+"/ft)";}).join(", "))+'</td><td>'+esc(r.active?"Active":"Inactive")+'</td><td><button data-action="edit-recipe" data-id="'+r.id+'">Edit</button></td></tr>');
  const movementRows=movements.map(m=>'<tr><td>'+esc(fmt(m.created_at))+'</td><td>'+esc((items.find(i=>i.id===m.item_id)||{}).sku||m.item_id)+'</td><td>'+esc(money(m.delta))+'</td><td>'+esc(money(m.balance))+'</td><td>'+esc(m.reason)+'</td></tr>');
  host.innerHTML='<div id="mdhStatusV15" role="status" aria-live="polite"></div>'+
- section('Approval Queue','New clients must be approved before accessing forms. '+awaiting+' pending.',table(['Username','Company','Status','Registered','Actions'],accountRows,'No client accounts yet.'))+
- section('Order & Estimate Reviews',pending.length+' submission(s) awaiting administrator review. Inventory moves only when an Order is approved.',table(['Sidemark / Account','Type','Status','Last Changed','Stock Deducted','Action'],docRows,'No submitted documents to review.'))+
- section('Inventory / Products',items.length+' components in the catalog, '+low+' at or below minimum stock.',
+ section('Stock Alerts','Unread warnings sent to each active administrator at 150 remaining.','<div id="mdhAlerts"></div>')+
+ section('Approval Queue','Approve production workers and clients. Workers use production.html; clients use the order form.  '+awaiting+' pending.',table(['Username','Company','Status','Registered','Actions'],accountRows,'No client accounts yet.'))+
+ section('Order & Estimate Reviews',pending.length+' submission(s) awaiting administrator review. Approved orders go to production; inventory is deducted only when assembly is completed.',table(['Sidemark / Account','Type','Status','Last Changed','Stock Deducted','Action'],docRows,'No submitted documents to review.'))+
+ section('Inventory / Products',items.length+' components in the catalog, '+low+' at or below minimum stock. System alerts trigger at 150 or fewer.',
   '<form id="mdhItemForm"><input type="hidden" name="id"><div class="mdh-grid">'+
    '<label>SKU<input name="sku" required maxlength="80" placeholder="SOMFY-MOTOR-01"></label>'+
    '<label>Item / Component Name<input name="name" required placeholder="Somfy track motor"></label>'+
@@ -134,7 +137,7 @@ function review(id){
  const d=reviewDoc, openings=Array.isArray(d.form_data?.openings)?d.form_data.openings:[];
  let body='<p><b>'+esc(d.document_type)+' — '+esc(d.sidemark||"Untitled")+'</b> | Status: '+esc(d.status)+'</p>';
  if(d.status==="submitted" && d.document_type==="Order"){
-   body+='<div class="mdh-alert">Choose one recipe and enter the actual track length (in feet) for each opening. Check calculated quantities before approval. Stock is not deducted until approval succeeds.</div>';
+   body+='<div class="mdh-alert">Choose one recipe and enter the actual track length (in feet) for each opening. Check calculated quantities before approval. Stock is not deducted until a production worker marks the approved order assembled.</div>';
    openings.forEach((o,j)=>{
     const chosen=recipes.find(r=>matches(o,r))?.id||"";
     body+='<div class="mdh-opening" data-opening="'+j+'"><b>Opening '+(j+1)+': '+esc(o.room||o.productType||"Untitled")+'</b><p class="mdh-muted">'+esc([o.size,o.productType,o.pleat,o.operation,o.motorBrand].filter(Boolean).join(" · "))+'</p>'+
@@ -183,9 +186,9 @@ function previewLines(){
  const {lines,preview}=linesForReview(),byId=new Map();
  for(const row of preview){const old=byId.get(row.item.id)||{item:row.item,need:0};old.need=four(old.need+row.qty);byId.set(row.item.id,old);}
  const shortages=[...byId.values()].filter(r=>r.need>Number(r.item.stock));
- dialog.querySelector("#mdhPreview").innerHTML='<h3>Approval-time stock requirements</h3><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><tr><th>Component</th><th>Required</th><th>Available</th><th>After Approval</th></tr>'+
+ dialog.querySelector("#mdhPreview").innerHTML='<h3>Assembly-time stock requirements (informational)</h3><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><tr><th>Component</th><th>Required</th><th>Available</th><th>After Approval</th></tr>'+
  [...byId.values()].map(r=>'<tr><td>'+esc(r.item.sku)+' — '+esc(r.item.name)+'</td><td>'+esc(money(r.need))+'</td><td>'+esc(money(r.item.stock))+'</td><td style="color:'+(r.need>Number(r.item.stock)?"#ed7780":"inherit")+'">'+esc(money(Number(r.item.stock)-r.need))+'</td></tr>').join("")+'</table></div>'+
- (shortages.length?'<p class="mdh-low">Not enough stock. Approval is blocked until inventory is received.</p>':'<p class="mdh-good">All components appear available; the server rechecks and deducts them atomically upon approval.</p>');
+ (shortages.length?'<p class="mdh-low">Not enough stock. Stock must be received before production can finish the order.</p>':'<p class="mdh-good">All components appear available; the server rechecks and deducts them atomically upon production completion.</p>');
  return {lines,shortages};
 }
 host.addEventListener("click", async event=>{
@@ -193,6 +196,10 @@ host.addEventListener("click", async event=>{
  const id=b.dataset.id;
  try{
   switch(b.dataset.action){
+   case "alert-read":{busy=true;const {error}=await db.from("stock_alerts").update({read_at:new Date().toISOString()}).eq("id",id);if(error)throw error;await load();break;}
+   case "role":
+    if(!window.confirm('Change account role to '+b.dataset.value+'?'))return;
+    busy=true;await rpc('mdh_assign_production',{p_id:id,p_role:b.dataset.value});await load();message('Account role updated.');break;
    case "account":
     if(!window.confirm("Change this account to "+b.dataset.value+"?"))return;
     busy=true;await rpc("mdh_review_account",{p_id:id,p_status:b.dataset.value});await load();message("Account status updated.");break;
@@ -244,11 +251,11 @@ dialog.addEventListener("click",async event=>{
   assert(reviewDoc && reviewDoc.status==="submitted","Document is not awaiting review.");
   let lines=[];
   if(action==="approve" && reviewDoc.document_type==="Order"){
-   const p=previewLines();assert(!p.shortages.length,"Insufficient stock. Receive the missing stock first.");lines=p.lines;
+   const p=previewLines();lines=p.lines;
   }
-  if(!window.confirm(action==="approve" ? "Approve this "+reviewDoc.document_type+"? Stock is deducted immediately for approved orders." : "Reject this submission? No stock will be deducted."))return;
+  if(!window.confirm(action==="approve" ? "Approve this "+reviewDoc.document_type+"? Approved orders enter the production queue; stock is deducted when assembly is marked complete." : "Reject this submission? No stock will be deducted."))return;
   busy=true;const result=await rpc("mdh_review_document",{p_id:reviewDoc.id,p_decision:action==="approve"?"approved":"rejected",p_lines:lines,p_note:dialog.querySelector("#mdhReviewNote")?.value||"",p_expected:reviewDoc.updated_at});
-  dialog.close();await load();message(result?.already_reviewed?"Already reviewed; no additional stock deducted.":"Review saved and inventory updated where applicable.");
+  dialog.close();await load();message(result?.already_reviewed?"Already reviewed; no additional stock deducted.":"Review saved. Approved orders will appear in production.");
  }catch(e){err(e);}finally{busy=false;}
 });
 const refresh=document.getElementById("refreshButton");
