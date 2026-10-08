@@ -28,7 +28,29 @@ function render(){
  return '<article class="job"><div><div class="path">'+esc(d.company_name||"Company Not Provided")+' › '+esc(d.sidemark||"No Sidemark")+' › Order</div><div class="meta">Order '+esc(d.id.slice(0,8))+' · '+openings+' opening(s)</div><details><summary class="meta">Required components ('+components.length+')</summary><div class="components">'+(components.length?components.map(c=>esc(c.name||c.sku)+': '+esc(c.quantity)+' '+esc(c.unit)).join("<br>"):"No assembly recipe on file")+'</div></details></div><label class="check"><input type="checkbox" data-job="'+esc(d.id)+'" '+(working?"disabled":"")+'>Assembled</label></article>';
  }).join(""):'<p>No approved production orders to show.</p>';
 }
-$("loginForm").addEventListener("submit",async e=>{e.preventDefault();error("");try{const {error:x}=await db.auth.signInWithPassword({email:$("email").value,password:$("password").value});if(x)throw x;await check()}catch(x){error(x)}});
+$("loginForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ error("");
+ const submit=e.currentTarget.querySelector("button[type=submit],button:not([type])");
+ if(submit)submit.disabled=true;
+ try{
+  const username=$("username").value.trim();
+  const password=$("password").value;
+  if(!username||!password)throw Error("Enter your username and password.");
+  // Reuse the MDH portal's existing server-side username/password login.
+  // The password is checked by Supabase Auth; no email lookup is exposed to the browser.
+  const {data:result,error:loginError}=await db.functions.invoke("username-login",{body:{username,password}});
+  if(loginError){
+   let reason="Invalid username or password.";
+   try{const response=await loginError.context?.json();if(response?.error)reason=response.error;}catch{}
+   throw Error(reason);
+  }
+  if(!result?.access_token||!result?.refresh_token)throw Error("Unable to establish a secure login session.");
+  const {error:sessionError}=await db.auth.setSession({access_token:result.access_token,refresh_token:result.refresh_token});
+  if(sessionError)throw sessionError;
+  await check();
+ }catch(x){error(x);}finally{if(submit)submit.disabled=false;}
+});
 $("logout").onclick=async()=>{await db.auth.signOut();await check();message("Signed out.")};
 $("refresh").onclick=()=>load().catch(error);$("search").oninput=render;
 $("jobs").addEventListener("change",async e=>{
