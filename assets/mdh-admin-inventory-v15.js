@@ -133,29 +133,50 @@ function matches(opening,recipe){
  const entries=Object.entries(recipe.match_fields||{});
  return recipe.active && entries.length && entries.every(([k,v])=>String(opening[k]||"").trim().toLowerCase()===String(v).trim().toLowerCase());
 }
+
+function addManualLine(opening, initial={}){
+ const box=dialog.querySelector('[data-opening="'+opening+'"] .roManual');
+ if(!box)return;
+ const row=document.createElement("div");row.className="mdh-component roManualRow";
+ row.innerHTML='<label>Component<select class="rmItem">'+options([["","Select inventory component"]].concat(items.filter(i=>i.active||i.id===initial.item_id).map(i=>[i.id,i.sku+" — "+i.name])),initial.item_id||"")+'</select></label>'+
+ '<label>Quantity<input class="rmQuantity" type="number" min="0.0001" step="0.0001" value="'+esc(initial.quantity||"")+'"></label>'+
+ '<button data-review-action="remove-manual" type="button">Remove</button>';
+ box.appendChild(row);
+}
 function review(id){
  reviewDoc=docs.find(d=>d.id===id);if(!reviewDoc)return;
- const d=reviewDoc, openings=Array.isArray(d.form_data?.openings)?d.form_data.openings:[];
- let body='<p><b>'+esc(d.document_type)+' — '+esc(d.sidemark||"Untitled")+'</b> | Status: '+esc(d.status)+'</p>';
- if(d.status==="submitted" && d.document_type==="Order"){
-   body+='<div class="mdh-alert">Choose one recipe and enter the actual track length (in feet) for each opening. Check calculated quantities before approval. Stock is not deducted until a production worker marks the approved order assembled.</div>';
-   openings.forEach((o,j)=>{
-    const chosen=recipes.find(r=>matches(o,r))?.id||"";
-    body+='<div class="mdh-opening" data-opening="'+j+'"><b>Opening '+(j+1)+': '+esc(o.room||o.productType||"Untitled")+'</b><p class="mdh-muted">'+esc([o.size,o.productType,o.pleat,o.operation,o.motorBrand].filter(Boolean).join(" · "))+'</p>'+
-    '<div class="mdh-grid"><label>Assembly Recipe<select class="roRecipe">'+options([["","Choose recipe"]].concat(recipes.filter(r=>r.active).map(r=>[r.id,r.name])),chosen)+'</select></label>'+
-    '<label>Track Length (feet)<input class="roLength" type="number" min="0.001" step="0.0001" placeholder="Measured length in feet"></label></div></div>';
-   });
-   body+='<div class="mdh-actions"><button type="button" data-review-action="preview">Preview Component Requirements</button><button class="primary" type="button" data-review-action="approve">Approve Order & Deduct Stock</button></div>';
+ const d=reviewDoc,openings=Array.isArray(d.form_data?.openings)?d.form_data.openings:[];
+ const editableOrder=d.document_type==="Order"&&(d.status==="submitted"||(d.status==="approved"&&!d.inventory_deducted));
+ let body='<p><b>'+esc(d.document_type)+' — '+esc(d.sidemark||"Untitled")+'</b> | '+esc(d.status)+'</p>'+
+ '<p class="mdh-muted">'+esc(orderDate(d))+' · Order ID: '+esc(d.id)+'</p>';
+ if(editableOrder){
+  body+='<div class="mdh-alert">Approved Orders go straight to production. Components may be configured during approval or afterward. Until components are verified for every opening, assembly completion and inventory deduction remain blocked.</div>';
+  openings.forEach((o,j)=>{
+   const chosen=d.status==="submitted"?(recipes.find(r=>matches(o,r))?.id||""):"";
+   body+='<div class="mdh-opening" data-opening="'+j+'"><b>Opening '+(j+1)+': '+esc(o.room||o.productType||"Untitled")+'</b>'+
+   '<p class="mdh-muted">'+esc([o.size,o.productType,o.pleat,o.operation,o.motorBrand].filter(Boolean).join(" · "))+'</p>'+
+   '<div class="mdh-grid"><label>Recipe (optional)<select class="roRecipe">'+options([["","No recipe"]].concat(recipes.filter(r=>r.active).map(r=>[r.id,r.name])),chosen)+'</select></label>'+
+   '<label>Track Length in Feet (recipe only)<input class="roLength" type="number" min="0.001" step="0.0001" placeholder="Enter length in feet"></label></div>'+
+   '<div class="roManual"></div><div class="mdh-actions"><button type="button" data-review-action="add-manual" data-opening="'+j+'">+ Add Individual Component</button></div></div>';
+  });
+  body+='<div class="mdh-actions"><button data-review-action="preview" type="button">Preview Components</button>'+
+   (d.status==="approved"?'<button class="primary" data-review-action="configure" type="button">Save Components for Production</button>':
+   '<button class="primary" data-review-action="approve" type="button">Approve Order → Send to Production</button>')+'</div>';
  }else if(d.status==="submitted"){
-   body+='<div class="mdh-alert">Approving an estimate does not deduct stock.</div><div class="mdh-actions"><button class="primary" data-review-action="approve" type="button">Approve Estimate</button></div>';
+  body+='<div class="mdh-alert">This is an Estimate. Approving it will NOT send it to production. Submit Form Type: Order to make production work.</div>'+
+  '<button class="primary" data-review-action="approve" type="button">Approve Estimate (No Production)</button>';
  }else{
-   body+='<div class="mdh-alert">Previously reviewed: '+esc(d.status)+(d.inventory_deducted?'. Inventory was deducted on approval.':'. No inventory deducted.')+'</div>';
-   const totals=d.component_snapshot?.totals||[];
-   if(Array.isArray(totals)&&totals.length)body+='<ul>'+totals.map(c=>'<li>'+esc(c.sku)+': '+esc(c.quantity)+' '+esc(c.unit)+'</li>').join("")+'</ul>';
+  body+='<div class="mdh-alert">Previously reviewed: '+esc(d.status)+'. '+(d.document_type==="Estimate"?"Estimates do not appear in production.":"Only Orders enter the production queue.")+'</div>';
+  const totals=d.component_snapshot?.totals||[];
+  if(Array.isArray(totals)&&totals.length)body+='<ul>'+totals.map(c=>'<li>'+esc(c.sku)+': '+esc(c.quantity)+' '+esc(c.unit)+'</li>').join("")+'</ul>';
  }
- if(d.status==="submitted")body+='<label>Admin Review Note (optional)<input id="mdhReviewNote" maxlength="500" placeholder="Reason or internal note"></label><div class="mdh-actions"><button data-review-action="reject" type="button">Reject Submission (No Stock Deduction)</button></div>';
+ if(d.status==="submitted")body+='<label>Admin Review Note (optional)<input id="mdhReviewNote" maxlength="500"></label>'+
+  '<div class="mdh-actions"><button data-review-action="reject" type="button">Reject Submission</button></div>';
  dialog.innerHTML='<h2>Document Review</h2>'+body+'<div id="mdhPreview"></div><div class="mdh-actions"><button data-review-action="close" type="button">Close</button></div>';
  dialog.showModal();
+ if(d.status==="approved"&&editableOrder){
+  for(const line of d.component_snapshot?.lines||[])if(line?.item_id)addManualLine(Number(line.opening_index),line);
+ }
 }
 function linesForReview(){
  assert(reviewDoc && reviewDoc.document_type==="Order","No order selected");
