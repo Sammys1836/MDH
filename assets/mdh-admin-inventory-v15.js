@@ -213,6 +213,10 @@ function linesForReview(requireAll=false){
 }
 function previewLines(){
  const {lines,preview}=linesForReview(),byId=new Map();
+ if(!lines.length){
+  dialog.querySelector("#mdhPreview").innerHTML='<div class="mdh-alert">Awaiting components. The Order may be approved and sent to Production, but assembly completion is disabled until an administrator configures verified component quantities for each opening.</div>';
+  return {lines,shortages:[]};
+ }
  for(const row of preview){const old=byId.get(row.item.id)||{item:row.item,need:0};old.need=four(old.need+row.qty);byId.set(row.item.id,old);}
  const shortages=[...byId.values()].filter(r=>r.need>Number(r.item.stock));
  dialog.querySelector("#mdhPreview").innerHTML='<h3>Assembly-time stock requirements (informational)</h3><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><tr><th>Component</th><th>Required</th><th>Available</th><th>After Assembly</th></tr>'+
