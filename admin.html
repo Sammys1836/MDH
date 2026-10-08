@@ -42,7 +42,7 @@ html[data-theme="dark"]{color-scheme:dark;--accent:#e05360;--accent-hover:#ef667
 <section class="panel"><div class="panel-head"><div><h3>Client Accounts</h3><p>Every registered portal account.</p></div><div class="panel-controls"><input id="accountSearch" type="search" placeholder="Search accounts"/></div></div><div class="table-wrap"><table><thead><tr><th>Username</th><th>Email</th><th>Company</th><th>Role</th><th>Documents</th><th>Registered</th><th>Last Active</th></tr></thead><tbody id="accountsBody"></tbody></table></div></section>
 <section class="panel"><div class="panel-head"><div><h3>Recent Activity</h3><p>Most recently updated documents.</p></div></div><div class="table-wrap"><table><thead><tr><th>Updated</th><th>Username</th><th>Sidemark</th><th>Type</th><th>Status</th><th></th></tr></thead><tbody id="recentBody"></tbody></table></div></section>
 </div>
-<section class="panel"><div class="panel-head"><div><h3>All Estimates / Orders</h3><p>Detailed system-wide document history.</p></div><div class="panel-controls"><input id="documentSearch" type="search" placeholder="Search all documents"/><select id="typeFilter"><option value="">All Types</option><option value="Estimate">Estimates</option><option value="Order">Orders</option></select><select id="statusFilter"><option value="">All Statuses</option><option value="draft">Draft</option><option value="submitted">Submitted</option><option value="completed">Completed</option><option value="archived">Archived</option></select></div></div>
+<section class="panel"><div class="panel-head"><div><h3>All Estimates / Orders</h3><p>Detailed system-wide document history.</p></div><div class="panel-controls"><input id="documentSearch" type="search" placeholder="Search all documents"/><select id="typeFilter"><option value="">All Types</option><option value="Estimate">Estimates</option><option value="Order">Orders</option></select><select id="statusFilter"><option value="">All Statuses</option><option value="draft">Draft</option><option value="submitted">Submitted</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="completed">Completed</option><option value="archived">Archived</option></select></div></div>
 <div class="table-wrap"><table><thead><tr><th>Updated</th><th>Sidemark</th><th>Username</th><th>Email</th><th>Company</th><th>Type</th><th>Status</th><th>Openings</th><th>Created</th><th></th></tr></thead><tbody id="documentsBody"></tbody></table></div></section>
 </div>
 </main>
@@ -85,5 +85,6 @@ document.addEventListener("keydown",(event)=>{if(event.key==="Escape")document.g
 (async()=>{try{if(!(await verifyAdmin()))return;await loadData();document.getElementById("loadingScreen").hidden=true;document.getElementById("adminApp").hidden=false}catch(error){console.error(error);document.getElementById("loadingMessage").textContent=error?.message||"Unable to load the administrator dashboard."}})();
 })();
 </script>
+<script src="assets/mdh-admin-inventory-v15.js?v=20261007" defer></script>
 </body>
 </html>
