@@ -2588,6 +2588,12 @@
     body.portal-signed-out .portal-user-bar { display: none !important; }
 
     body.portal-authenticated .portal-auth-shell { display: none !important; }
+    /* Keep every estimate/order control outside the public login screen. */
+    body.portal-auth-pending > :not(#portalAuthShell):not(script),
+    body.portal-signed-out > :not(#portalAuthShell):not(script) {
+      display: none !important;
+    }
+
 
     .portal-auth-shell {
       min-height: 100vh; display:grid; place-items:center; padding:28px 18px;
@@ -10256,7 +10262,7 @@
       const portalGetProfile = async (userId) => {
         const { data, error } = await portalSupabase
           .from("profiles")
-          .select("id, username, email, company_name, role, is_active, created_at, last_seen_at")
+          .select("id, username, email, company_name, role, is_active, approval_status, created_at, last_seen_at")
           .eq("id", userId)
           .single();
 
@@ -10284,6 +10290,16 @@
           await portalSupabase.auth.signOut();
           portalSetSignedOut();
           portalMessage("This account has been disabled.");
+          return;
+        }
+
+        if (portalProfile.role !== "admin" && portalProfile.approval_status !== "approved") {
+          const status = portalProfile.approval_status || "pending";
+          await portalSupabase.auth.signOut();
+          portalSetSignedOut();
+          portalMessage(status === "rejected"
+            ? "This registration was not approved. Contact Miami Drapery Hardware for assistance."
+            : "Your account is pending administrator approval. You can access the estimate / order form once approved.", status !== "rejected");
           return;
         }
 
@@ -10373,19 +10389,9 @@
             company_name: company
           });
 
-          portalMessage("Account created. Signing you in…", true);
-
-          const login = await portalFunction("username-login", { username, password });
-          const { data, error } = await portalSupabase.auth.setSession({
-            access_token: login.access_token,
-            refresh_token: login.refresh_token
-          });
-
-          if (error || !data.session) throw error || new Error("Account created, but sign-in failed.");
-          await portalSetAuthenticated(data.session);
-
-          if (!companyName.value.trim()) companyName.value = toProperCase(company);
           portalRegisterForm.reset();
+          portalShowAuthTab("login");
+          portalMessage("Registration submitted successfully. An MDH administrator must approve your account before you can access the estimate / order form.", true);
         } catch (error) {
           portalMessage(error.message || "Unable to create account.");
         } finally {
