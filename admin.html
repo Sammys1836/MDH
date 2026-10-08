@@ -93,6 +93,6 @@ document.addEventListener("keydown",(event)=>{if(event.key==="Escape")document.g
 (async()=>{try{if(!(await verifyAdmin()))return;await loadData();document.getElementById("loadingScreen").hidden=true;document.getElementById("adminApp").hidden=false}catch(error){console.error(error);document.getElementById("loadingMessage").textContent=error?.message||"Unable to load the administrator dashboard."}})();
 })();
 </script>
-<script src="assets/mdh-admin-inventory-v15.js?v=20261008-approval-dates-2" defer></script>
+<script src="assets/mdh-admin-inventory-v15.js?v=20261008-approval-dates-3" defer></script>
 </body>
 </html>
