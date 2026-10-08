@@ -7,12 +7,12 @@ function error(s){$("error").textContent=s?.message||s||"";if(s)$("success").tex
 function message(s){error("");$("success").textContent=s;}
 async function check(){
  const {data:{user}}=await db.auth.getUser();
- if(!user){$("login").classList.remove("hide");$("workspace").classList.add("hide");$("logout").classList.add("hide");$("refresh").classList.add("hide");return;}
+ if(!user){$("login").classList.remove("hide");$("workspace").classList.add("hide");$("logout").classList.add("hide");$("refresh").classList.add("hide");$("returnToAdmin").classList.add("hide");return;}
  const {data:p,error:e}=await db.from("profiles").select("role,approval_status,is_active").eq("id",user.id).single();
  if(e||!p||p.approval_status!=="approved"||!p.is_active||!["production","admin"].includes(p.role)){
    await db.auth.signOut(); throw Error("This account has not been approved for production access.");
  }
- $("login").classList.add("hide");$("workspace").classList.remove("hide");$("logout").classList.remove("hide");$("refresh").classList.remove("hide");
+ $("login").classList.add("hide");$("workspace").classList.remove("hide");$("logout").classList.remove("hide");$("refresh").classList.remove("hide");$("returnToAdmin").classList.toggle("hide",p.role!=="admin");
  await load();
 }
 async function load(){
