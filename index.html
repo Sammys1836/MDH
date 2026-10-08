@@ -2595,6 +2595,9 @@
     }
 
 
+    #submitOrder[hidden] { display: none !important; }
+    #submitOrder { margin-left: 0; background: var(--accent); }
+    #submitOrder:disabled, #saveDraft:disabled { opacity: .55; cursor: not-allowed; transform: none; }
     .portal-auth-shell {
       min-height: 100vh; display:grid; place-items:center; padding:28px 18px;
       background: radial-gradient(circle at 18% 12%, rgba(224,83,96,.12), transparent 26rem),
@@ -2996,6 +2999,7 @@
 <span class="status" id="saveStatus">Draft is saved in this browser.</span>
 <button class="button ghost" id="clearForm" type="button">Clear</button>
 <button class="button secondary" id="saveDraft" type="button">Save Draft</button>
+<button class="button primary" id="submitOrder" type="button" hidden>Submit Order</button>
 <button class="button secondary" id="printForm" type="button">Print / Save PDF</button>
 <button class="button secondary" id="generateBulkPdf" type="button">Generate Bulk PDF</button>
 <button class="button primary" id="emailForm" type="button">Generate PDF &amp; Email</button>
@@ -10181,6 +10185,33 @@
       let portalSession = null;
       let portalProfile = null;
       let portalCurrentDocumentId = null;
+      let portalCurrentDocumentStatus = "draft";
+      let portalSubmitting = false;
+      const portalUpdateSubmissionControls = () => {
+        const submit = document.getElementById("submitOrder");
+        const draft = document.getElementById("saveDraft");
+        const isOrder = document.getElementById("formType")?.value === "Order";
+        const canSubmit = Boolean(
+          portalSession?.user && portalProfile?.is_active &&
+          portalProfile?.approval_status === "approved" &&
+          ["client","admin"].includes(portalProfile?.role)
+        );
+        if (submit) {
+          submit.hidden = !canSubmit || !isOrder;
+          submit.disabled = portalSubmitting || portalCurrentDocumentStatus !== "draft";
+          submit.textContent = portalCurrentDocumentStatus === "draft"
+            ? "Submit Order"
+            : portalCurrentDocumentStatus === "submitted"
+              ? "Pending Admin Approval"
+              : "Order " + portalCurrentDocumentStatus;
+          submit.title = portalCurrentDocumentStatus === "draft"
+            ? "Send order for MDH administrator review"
+            : "Order is already submitted and cannot be re-submitted";
+        }
+        if (draft) draft.disabled = portalSubmitting ||
+          (portalCurrentDocumentId !== null && portalCurrentDocumentStatus !== "draft");
+      };
+      document.getElementById("formType")?.addEventListener("change", portalUpdateSubmissionControls);
       let portalDocuments = [];
       let portalAdminProfiles = [];
       let portalAdminDocs = [];
@@ -10274,6 +10305,9 @@
         portalSession = null;
         portalProfile = null;
         portalCurrentDocumentId = null;
+        portalCurrentDocumentStatus = "draft";
+        portalSubmitting = false;
+        portalUpdateSubmissionControls();
         document.body.classList.remove("portal-auth-pending", "portal-authenticated");
         document.body.classList.add("portal-signed-out");
         document.getElementById("portalUserBar").hidden = true;
@@ -10305,6 +10339,7 @@
 
         document.body.classList.remove("portal-auth-pending", "portal-signed-out");
         document.body.classList.add("portal-authenticated");
+        portalUpdateSubmissionControls();
 
         const username = portalProfile.username || "Client";
         document.getElementById("portalUserBar").hidden = false;
@@ -10418,6 +10453,7 @@
         openingsContainer.innerHTML = "";
         currentOpeningCard = null;
         portalCurrentDocumentId = null;
+        portalCurrentDocumentStatus = "draft";
         localStorage.removeItem(DRAFT_KEY);
 
         if (preferredCompany) {
@@ -10428,6 +10464,7 @@
         createOpening();
         updateOpeningMeta();
         statusEl.textContent = tr("New form ready.");
+        portalUpdateSubmissionControls();
       };
 
       document.getElementById("portalNewDocumentButton")?.addEventListener("click", portalNewForm);
@@ -10456,13 +10493,24 @@
         (data.openings?.length ? data.openings : [{}]).forEach(createOpening);
         updateOpeningMeta();
         saveDraft(false);
+        portalUpdateSubmissionControls();
         window.scrollTo({ top: 0, behavior: "smooth" });
       };
 
       const portalSaveCloud = async (status = "draft", notify = false) => {
         if (!portalSession?.user || !portalProfile) return null;
 
-        const data = getFormData();
+        if (portalCurrentDocumentStatus !== "draft") {
+          throw new Error("This document is already submitted. Create a new form to make changes.");
+        }
+        if (!["draft","submitted"].includes(status)) throw new Error("Invalid document status.");
+        const data = status === "submitted" ? getEnglishSubmissionData() : getFormData();
+        if (status === "submitted" && data.formType !== "Order") {
+          throw new Error("Select Order as the form type before submitting.");
+        }
+        if (status === "submitted" && !validateForm()) {
+          throw new Error("Complete the required fields before submitting.");
+        }
         const payload = {
           user_id: portalSession.user.id,
           document_type: data.formType || "Estimate",
@@ -10478,6 +10526,7 @@
             .from("documents")
             .update(payload)
             .eq("id", portalCurrentDocumentId)
+            .eq("status", "draft")
             .select("id")
             .single();
         } else {
@@ -10490,13 +10539,13 @@
 
         if (result.error) throw result.error;
         portalCurrentDocumentId = result.data.id;
-
-        statusEl.textContent =
-          status === "draft"
-            ? tr("Draft saved to your account.")
-            : tr("Saved to your account.");
-
-        if (notify) showToast(status === "draft" ? "Draft saved to account" : "Saved to account");
+        portalCurrentDocumentStatus = status;
+        portalUpdateSubmissionControls();
+        if (status === "submitted") localStorage.removeItem(DRAFT_KEY);
+        statusEl.textContent = status === "draft"
+          ? tr("Draft saved to your account.")
+          : "Order submitted — pending administrator approval.";
+        if (notify) showToast(status === "draft" ? "Draft saved to account" : "Order submitted for admin approval");
         return result.data.id;
       };
 
@@ -10518,10 +10567,44 @@
         portalQueueSave("draft", true);
       });
 
-      ["printForm", "generateBulkPdf", "emailForm"].forEach((buttonId) => {
-        document.getElementById(buttonId)?.addEventListener("click", () => {
-          if (form.checkValidity()) portalQueueSave("submitted", false);
-        });
+      // PDF/print/email are output actions; only Submit Order sends for approval.
+      document.getElementById("submitOrder")?.addEventListener("click", async () => {
+        if (portalSubmitting) return;
+        if (!portalSession?.user || !portalProfile?.is_active ||
+            portalProfile.approval_status !== "approved" ||
+            !["admin","client"].includes(portalProfile.role)) {
+          showToast("An approved account is required to submit an order");
+          return;
+        }
+        if (document.getElementById("formType").value !== "Order") {
+          showToast("Select Order as the form type first");
+          return;
+        }
+        if (portalCurrentDocumentStatus !== "draft") {
+          showToast("This order is already submitted.");
+          return;
+        }
+        if (!validateForm()) return;
+        if (!window.confirm("Submit this order to MDH for administrator approval? Changes will not be accepted after submission, and inventory will not yet be deducted.")) return;
+        portalSubmitting = true;
+        portalUpdateSubmissionControls();
+        try {
+          // Serialize with any pending draft save to avoid updating the same row twice.
+          portalSaveChain = portalSaveChain
+            .catch(() => null)
+            .then(() => portalSaveCloud("submitted", false));
+          const id = await portalSaveChain;
+          if (!id) throw new Error("Order submission did not return a document ID.");
+          statusEl.textContent = "Order submitted — pending administrator approval.";
+          showToast("Order submitted for admin approval");
+        } catch (error) {
+          console.error("Order submission failed:", error);
+          statusEl.textContent = "Submission failed. Your form is still available.";
+          showToast(error.message || "Unable to submit order. Please retry.");
+        } finally {
+          portalSubmitting = false;
+          portalUpdateSubmissionControls();
+        }
       });
 
       const portalLoadDocument = async (id, adminMode = false) => {
@@ -10537,6 +10620,7 @@
         }
 
         portalCurrentDocumentId = data.id;
+        portalCurrentDocumentStatus = data.status || "draft";
         portalApplyFormData(data.form_data);
         portalDashboardModal.hidden = true;
         portalAdminModal.hidden = true;
