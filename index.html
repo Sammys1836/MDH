@@ -2595,8 +2595,15 @@
     }
 
 
-    #submitOrder[hidden] { display: none !important; }
-    #submitOrder { margin-left: 0; background: var(--accent); }
+    #submitOrder { margin-left: 0; background: var(--accent); font-weight: 900; }
+    /* Make the explicit approval action easy to find above the export controls. */
+    @media(max-width: 860px) {
+      .action-inner #submitOrder { order: -1; grid-column: 1 / -1; min-height: 43px; font-size: .85rem; }
+      .shell { margin-bottom: 245px; }
+    }
+    @media(max-width: 420px) {
+      .shell { margin-bottom: 250px; }
+    }
     #submitOrder:disabled, #saveDraft:disabled { opacity: .55; cursor: not-allowed; transform: none; }
     .portal-auth-shell {
       min-height: 100vh; display:grid; place-items:center; padding:28px 18px;
@@ -2999,7 +3006,7 @@
 <span class="status" id="saveStatus">Draft is saved in this browser.</span>
 <button class="button ghost" id="clearForm" type="button">Clear</button>
 <button class="button secondary" id="saveDraft" type="button">Save Draft</button>
-<button class="button primary" id="submitOrder" type="button" hidden>Submit Order</button>
+<button class="button primary" id="submitOrder" type="button" aria-label="Submit order for administrator approval">Submit Order</button>
 <button class="button secondary" id="printForm" type="button">Print / Save PDF</button>
 <button class="button secondary" id="generateBulkPdf" type="button">Generate Bulk PDF</button>
 <button class="button primary" id="emailForm" type="button">Generate PDF &amp; Email</button>
@@ -10204,7 +10211,9 @@
           ["client","admin"].includes(portalProfile?.role)
         );
         if (submit) {
-          submit.hidden = !canSubmit || !isOrder;
+          // Always show Submit Order on the authenticated form. The selection
+          // and permission checks belong in the click handler, not visibility.
+          submit.hidden = false;
           submit.disabled = portalSubmitting || portalCurrentDocumentStatus !== "draft";
           submit.textContent = portalCurrentDocumentStatus === "draft"
             ? "Submit Order"
@@ -10591,7 +10600,10 @@
           return;
         }
         if (document.getElementById("formType").value !== "Order") {
-          showToast("Select Order as the form type first");
+          const formType = document.getElementById("formType");
+          showToast("To submit, select Order under Form Type (currently Estimate).");
+          formType.scrollIntoView({ behavior: "smooth", block: "center" });
+          formType.focus({ preventScroll: true });
           return;
         }
         if (portalCurrentDocumentStatus !== "draft") {
